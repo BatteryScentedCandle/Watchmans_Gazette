@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'articles_page.dart';
 
 class LandingPage extends StatelessWidget {
+  const LandingPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,12 +12,12 @@ class LandingPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ArticlesPage()),
+                  MaterialPageRoute(builder: (context) => ArticlesPage()), //nees to fix somehow
                 );
               },
               child: Text('Take but a peek of our affairs'),
@@ -27,7 +29,7 @@ class LandingPage extends StatelessWidget {
   }
 }
 
-Widget _buildHeader() {
+Widget _buildHeader(BuildContext context) {
   return Container(
     padding: EdgeInsets.all(16.0),
 
