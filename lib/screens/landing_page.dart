@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 
+import 'articles_page.dart';
+
 class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHeader()
-            ],
-          )
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArticlesPage()),
+                );
+              },
+              child: Text('Take but a peek of our affairs'),
+            ),
+          ],
+        ),
       ),
     );
   }
