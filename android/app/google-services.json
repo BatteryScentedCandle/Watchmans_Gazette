@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "271984737306",
+    "project_id": "watchman-s-gazette",
+    "storage_bucket": "watchman-s-gazette.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271984737306:android:06cc428141f31f332325a3",
+        "android_client_info": {
+          "package_name": "com.example.watchmans_gazette"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKNDPIpyo3XqE_woLOcNUuAB_3QrK05to"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

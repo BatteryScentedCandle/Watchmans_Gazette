@@ -17,7 +17,7 @@ class LandingPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ArticlesPage()), //nees to fix somehow
+                  MaterialPageRoute(builder: (context) => ArticlesPage()), //need to fix somehow
                 );
               },
               child: Text('Take but a peek of our affairs'),
