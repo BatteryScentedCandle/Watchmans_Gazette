@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'articles_page.dart';
+import 'sign_up_page.dart';
+import 'login_page.dart';
+
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -17,10 +19,19 @@ class LandingPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ArticlesPage()), //need to fix somehow
+                  MaterialPageRoute(builder: (context) => LoginPage()), //need to fix somehow
                 );
               },
-              child: Text('Take but a peek of our affairs'),
+              child: Text('Login'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignUpPage()), //need to fix somehow
+                );
+              },
+              child: Text('Sign Up'),
             ),
           ],
         ),
