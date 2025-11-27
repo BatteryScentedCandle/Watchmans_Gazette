@@ -17,19 +17,19 @@ class LandingPage extends StatelessWidget {
             _buildHeader(context),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()), //need to fix somehow
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => LoginPage()), //need to fix somehow
+                // );
               },
               child: Text('Login'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignUpPage()), //need to fix somehow
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => SignUpPage()), //need to fix somehow
+                // );
               },
               child: Text('Sign Up'),
             ),
