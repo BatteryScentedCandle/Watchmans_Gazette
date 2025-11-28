@@ -2,16 +2,31 @@
 
 A new Flutter project.
 
-## Getting Started
+## Building
+The application makes use of private API keys. One of which is the API key for
+fscapi for fetching news. The api key should be included in a separate json
+file. For instance, `keys.json`. This file should contain the following fields:
 
-This project is a starting point for a Flutter application.
+* NEWS_API_KEY
 
-A few resources to get you started if this is your first Flutter project:
+Example api key file:
+```json
+{
+    "NEWS_API_KEY": "insert_api_key_here"
+}
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+To build the program with the api key, you must add the 
+`--dart-define-from-file` flag to the build command.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Here is an example of building the apk with `keys.json` as the api keys file:
+```bash
+flutter build apk --dart-define-from-file="keys.json"
+```
+
+Or to run:
+```bash
+flutter run --dart-define-from-file="keys.json"
+```
+
+
