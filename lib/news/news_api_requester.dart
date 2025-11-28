@@ -72,8 +72,7 @@ class NewsApiRequester {
   /// [onFail] is a callback for when the request fails. The first parameter is
   /// The message of the response.
   /// 
-  /// [limit] refers to the default number of results to request for. Defaults
-  /// to 20.
+  /// [limit] refers to the number of results to request for. Defaults to 20.
   /// 
   static Future<void> getNews({
     required int sdg,
@@ -87,7 +86,7 @@ class NewsApiRequester {
     Map<String, dynamic> params = {
       ParamKeywords.ACCESS_KEY: apiKey,
       ParamKeywords.FIND: keywords,
-      // ParamKeywords.LIMIT: limit,
+      ParamKeywords.LIMIT: limit.toString(),
     };
 
     final Uri uri = _getUri(params: params);
