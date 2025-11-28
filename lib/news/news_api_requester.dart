@@ -15,6 +15,21 @@ class SearchInValues {
   static const DESCRIPTION = "description";
 }
 
+/// # [NewsApiRequester]
+/// This class contains tools for retrieving news from fcsapi
+///
+/// The main utility used in this class is the [getNews] method.
+///
+/// [SEARCH_IN] is a constant value referring to where to look for the keywords
+/// provided by the `find` option. This may be switched between the values of
+/// [SearchInValues].
+///
+/// The [SDG1_KEYWORDS], [SDG2_KEYWORDS], [SDG3_KEYWORDS], etc. are lists of
+/// keywords passed into the `find` option of the request. These should be 
+/// related to the SDG of that number.
+///
+/// For more info about the API, see the [official docs](https://news.fcsapi.com/documentation/news-api)
+///
 class NewsApiRequester {
   static const SEARCH_IN = SearchInValues.CONTENT;
   static const NEWS_HOST = "news.fcsapi.com";
@@ -44,10 +59,26 @@ class NewsApiRequester {
         : Uri.http(NEWS_HOST, REQUEST_ENDPOINT, params);
   }
 
+  /// # [getNews]
+  /// Retrieve news from fcsapi. [sdg] and [onSuccess] are required.
+  /// 
+  /// ## Parameters
+  /// The [sdg] refers to the SDG goal number.
+  /// 
+  /// [onSuccess] is a callback for when the request succeeds. The first 
+  /// parameter is the message of the response. The second is The [NewsResponse]
+  /// that contains the retrieved news.
+  /// 
+  /// [onFail] is a callback for when the request fails. The first parameter is
+  /// The message of the response.
+  /// 
+  /// [limit] refers to the default number of results to request for. Defaults
+  /// to 20.
+  /// 
   static Future<void> getNews({
-    required Function(String, ResponseBody) onSuccess,
-    Function(String)? onFail,
     required int sdg,
+    required Function(String, NewsResponse) onSuccess,
+    Function(String)? onFail,
     int limit = 20,
   }) async {
     final String apiKey = String.fromEnvironment(NEWS_API_KEY);
@@ -82,7 +113,7 @@ class NewsApiRequester {
     }
 
     final newsItems = _extractNews(body["response"]);
-    final news = ResponseBody(
+    final news = NewsResponse(
       status: status,
       code: code,
       msg: msg,
@@ -92,21 +123,21 @@ class NewsApiRequester {
     onSuccess(msg, news);
   }
 
-  static List<NewsResponse> _extractNews(List<dynamic> news) {
-    List<NewsResponse> newsItems = .generate(news.length, (index) {
+  static List<NewsItem> _extractNews(List<dynamic> news) {
+    List<NewsItem> newsItems = .generate(news.length, (index) {
       final map = news[index];
       return _extractNewsItem(map);
     });
     return newsItems;
   }
 
-  static NewsResponse _extractNewsItem(Map<String, dynamic> news) {
+  static NewsItem _extractNewsItem(Map<String, dynamic> news) {
     NewsImage newsImage = NewsImage(
       img: news["image"]["img"],
       video: news["image"]["video"],
     );
     List<dynamic> keywords = news["keywords"];
-    return NewsResponse(
+    return NewsItem(
       id: news["id"],
       title: news["title"],
       description: news["description"],
@@ -118,6 +149,7 @@ class NewsApiRequester {
       country: news["country"],
       author: news["author"],
       keywords: .generate(keywords.length, (index) => keywords[index]),
+      contentApi: news["content_api"],
       newsImage: newsImage,
     );
   }
@@ -167,13 +199,21 @@ class NewsApiRequester {
   }
 }
 
-class ResponseBody {
+/// # [NewsResponse]
+/// Contains the result of the news api request.
+/// 
+/// [status] refers to whether the request succeeded or failed.
+/// [code] refers to the http status code of the response.
+/// [msg] is the message of the response.
+/// [news] is a list of news sent by the response.
+/// 
+class NewsResponse {
   bool status;
   int code;
   String msg;
-  List<NewsResponse> news;
+  List<NewsItem> news;
 
-  ResponseBody({
+  NewsResponse({
     required this.status,
     required this.code,
     required this.msg,
@@ -181,7 +221,23 @@ class ResponseBody {
   });
 }
 
-class NewsResponse {
+/// # [NewsItem]
+/// Contains information about a single news result.
+/// 
+/// [id] is the id of the news in fcsapi.
+/// 
+/// [source] is the url to the web view of the news.
+/// 
+/// [site] refers to the site origin of the news.
+/// 
+/// [country] is a comma separated list of country codes.
+/// 
+/// [keywords] is a [List] of keywords
+/// 
+/// [newsImage] contains either an image or video url of the news. see [NewsImage]
+/// 
+/// [contentApi] is the fcsapi url to view the content of the news.
+class NewsItem {
   String id;
   String title;
   String description;
@@ -194,8 +250,9 @@ class NewsResponse {
   String author;
   List<String> keywords;
   NewsImage newsImage;
+  String contentApi;
 
-  NewsResponse({
+  NewsItem({
     required this.id,
     required this.title,
     required this.description,
@@ -208,6 +265,7 @@ class NewsResponse {
     required this.author,
     required this.keywords,
     required this.newsImage,
+    required this.contentApi
   });
 
   @override
@@ -237,10 +295,14 @@ keywords:
   $keywords
 newsImage:
   $newsImage
+content_api:
+  $contentApi
     ''';
   }
 }
 
+/// # [NewsImage]
+/// Just contains an [img] or [video] url.
 class NewsImage {
   String img;
   String video;
