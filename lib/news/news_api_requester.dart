@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:watchmans_gazette/news/sdg_keywords.dart';
 
 class ParamKeywords {
   static const ACCESS_KEY = "access_key";
@@ -35,137 +36,6 @@ class NewsApiRequester {
   static const NEWS_HOST = "news.fcsapi.com";
   static const REQUEST_ENDPOINT = "/api/news";
   static const NEWS_API_KEY = "NEWS_API_KEY";
-  static const SDG1_KEYWORDS = [
-    "poverty",
-    "low-income",
-    "inequality",
-    "+welfare",
-    "+aid",
-  ];
-  static const SDG2_KEYWORDS = [
-    "hunger",
-    "malnutrition",
-    "food*",
-    "food security",
-    "agriculture",
-    "famine",
-  ];
-  static const SDG3_KEYWORDS = [
-    "healthcare",
-    "disease",
-    "outbreak",
-    "vaccine*",
-    "\"public health\"",
-    "maternal",
-  ];
-  static const SDG4_KEYWORDS = [
-    "education",
-    "literacy",
-    "school*",
-    "\"higher education\"",
-    "curriculum",
-  ];
-  static const SDG5_KEYWORDS = [
-    "\"gender equality\"",
-    "women*",
-    "girls*",
-    "\"gender violence\"",
-    "empowerment",
-  ];
-  static const SDG6_KEYWORDS = [
-    "\"clean water\"",
-    "sanitation",
-    "water*",
-    "wastewater",
-    "drought",
-  ];
-  static const SDG7_KEYWORDS = [
-    "renewable",
-    "\"clean energy\"",
-    "solar",
-    "wind",
-    "hydro",
-    "energy",
-    "transition",
-  ];
-  static const SDG8_KEYWORDS = [
-    "\"economic growth\"",
-    "employment",
-    "jobs",
-    "labor*",
-    "productivity",
-    "inflation",
-  ];
-  static const SDG9_KEYWORDS = [
-    "innovation",
-    "infrastructure",
-    "digital*",
-    "manufacturing",
-    "technology",
-    "\"research development\""
-  ];
-  static const SDG10_KEYWORDS = [
-    "inequality",
-    "\"social inclusion\"",
-    "migrant*",
-    "minority*",
-    "discrimination",
-  ];
-  static const SDG11_KEYWORDS = [
-    "\"sustainable city\"",
-    "urban*",
-    "housing",
-    "transport*",
-    "\"disaster risk\""
-  ];
-  static const SDG12_KEYWORDS = [
-    "\"sustainable consumption\"",
-    "recycling",
-    "waste*",
-    "\"circular economy\"",
-    "pollution",
-  ];
-  static const SDG13_KEYWORDS = [
-    "\"climate change\"",
-    "emissions",
-    "carbon*",
-    "warming",
-    "adaptation",
-    "mitigation",
-  ];
-  static const SDG14_KEYWORDS = [
-    "ocean*",
-    "marine*",
-    "fishery*",
-    "coral",
-    "pollution",
-    "\"sea level\""
-  ];
-  static const SDG15_KEYWORDS = [
-    "biodiversity",
-    "forest*",
-    "wildlife",
-    "conservation",
-    "desertification",
-    "ecosystem",
-  ];
-  static const SDG16_KEYWORDS = [
-    "governance",
-    "corruption",
-    "justice",
-    "\"human rights\"",
-    "conflict",
-    "security",
-
-  ];
-  static const SDG17_KEYWORDS = [
-    "\"global partnership\"",
-    "development",
-    "aid",
-    "funding",
-    "cooperation",
-    "UN",
-  ];
 
   static Uri _getUri({bool https = true, Map<String, dynamic>? params}) {
     return https
