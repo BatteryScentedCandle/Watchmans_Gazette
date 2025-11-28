@@ -11,7 +11,7 @@ const SDG2_KEYWORDS = [
   "hunger",
   "malnutrition",
   "food*",
-  "food security",
+  "\"food security\"",
   "agriculture",
   "famine",
 ];

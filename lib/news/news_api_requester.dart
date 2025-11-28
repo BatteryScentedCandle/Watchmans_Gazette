@@ -119,7 +119,7 @@ class NewsApiRequester {
       img: news["image"]["img"],
       video: news["image"]["video"],
     );
-    List<dynamic> keywords = news["keywords"];
+    List<dynamic>? keywords = news["keywords"];
     return NewsItem(
       id: news["id"],
       title: news["title"],
@@ -131,7 +131,9 @@ class NewsApiRequester {
       category: news["category"],
       country: news["country"],
       author: news["author"],
-      keywords: .generate(keywords.length, (index) => keywords[index]),
+      keywords: keywords != null
+          ? keywords.cast<String>()
+          : [],
       contentApi: news["content_api"],
       newsImage: newsImage,
     );
@@ -277,7 +279,7 @@ author:
 keywords:
   $keywords
 newsImage:
-  $newsImage
+$newsImage
 content_api:
   $contentApi
     ''';
