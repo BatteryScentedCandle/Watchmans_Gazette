@@ -25,7 +25,7 @@ class SearchInValues {
 /// [SearchInValues].
 ///
 /// The [SDG1_KEYWORDS], [SDG2_KEYWORDS], [SDG3_KEYWORDS], etc. are lists of
-/// keywords passed into the `find` option of the request. These should be 
+/// keywords passed into the `find` option of the request. These should be
 /// related to the SDG of that number.
 ///
 /// For more info about the API, see the [official docs](https://news.fcsapi.com/documentation/news-api)
@@ -35,23 +35,137 @@ class NewsApiRequester {
   static const NEWS_HOST = "news.fcsapi.com";
   static const REQUEST_ENDPOINT = "/api/news";
   static const NEWS_API_KEY = "NEWS_API_KEY";
-  static const SDG1_KEYWORDS = ["poverty", "poor", "homeless"];
-  static const SDG2_KEYWORDS = [""];
-  static const SDG3_KEYWORDS = [""];
-  static const SDG4_KEYWORDS = [""];
-  static const SDG5_KEYWORDS = [""];
-  static const SDG6_KEYWORDS = [""];
-  static const SDG7_KEYWORDS = [""];
-  static const SDG8_KEYWORDS = [""];
-  static const SDG9_KEYWORDS = [""];
-  static const SDG10_KEYWORDS = [""];
-  static const SDG11_KEYWORDS = [""];
-  static const SDG12_KEYWORDS = [""];
-  static const SDG13_KEYWORDS = [""];
-  static const SDG14_KEYWORDS = [""];
-  static const SDG15_KEYWORDS = [""];
-  static const SDG16_KEYWORDS = [""];
-  static const SDG17_KEYWORDS = [""];
+  static const SDG1_KEYWORDS = [
+    "poverty",
+    "low-income",
+    "inequality",
+    "+welfare",
+    "+aid",
+  ];
+  static const SDG2_KEYWORDS = [
+    "hunger",
+    "malnutrition",
+    "food*",
+    "food security",
+    "agriculture",
+    "famine",
+  ];
+  static const SDG3_KEYWORDS = [
+    "healthcare",
+    "disease",
+    "outbreak",
+    "vaccine*",
+    "\"public health\"",
+    "maternal",
+  ];
+  static const SDG4_KEYWORDS = [
+    "education",
+    "literacy",
+    "school*",
+    "\"higher education\"",
+    "curriculum",
+  ];
+  static const SDG5_KEYWORDS = [
+    "\"gender equality\"",
+    "women*",
+    "girls*",
+    "\"gender violence\"",
+    "empowerment",
+  ];
+  static const SDG6_KEYWORDS = [
+    "\"clean water\"",
+    "sanitation",
+    "water*",
+    "wastewater",
+    "drought",
+  ];
+  static const SDG7_KEYWORDS = [
+    "renewable",
+    "\"clean energy\"",
+    "solar",
+    "wind",
+    "hydro",
+    "energy",
+    "transition",
+  ];
+  static const SDG8_KEYWORDS = [
+    "\"economic growth\"",
+    "employment",
+    "jobs",
+    "labor*",
+    "productivity",
+    "inflation",
+  ];
+  static const SDG9_KEYWORDS = [
+    "innovation",
+    "infrastructure",
+    "digital*",
+    "manufacturing",
+    "technology",
+    "\"research development\""
+  ];
+  static const SDG10_KEYWORDS = [
+    "inequality",
+    "\"social inclusion\"",
+    "migrant*",
+    "minority*",
+    "discrimination",
+  ];
+  static const SDG11_KEYWORDS = [
+    "\"sustainable city\"",
+    "urban*",
+    "housing",
+    "transport*",
+    "\"disaster risk\""
+  ];
+  static const SDG12_KEYWORDS = [
+    "\"sustainable consumption\"",
+    "recycling",
+    "waste*",
+    "\"circular economy\"",
+    "pollution",
+  ];
+  static const SDG13_KEYWORDS = [
+    "\"climate change\"",
+    "emissions",
+    "carbon*",
+    "warming",
+    "adaptation",
+    "mitigation",
+  ];
+  static const SDG14_KEYWORDS = [
+    "ocean*",
+    "marine*",
+    "fishery*",
+    "coral",
+    "pollution",
+    "\"sea level\""
+  ];
+  static const SDG15_KEYWORDS = [
+    "biodiversity",
+    "forest*",
+    "wildlife",
+    "conservation",
+    "desertification",
+    "ecosystem",
+  ];
+  static const SDG16_KEYWORDS = [
+    "governance",
+    "corruption",
+    "justice",
+    "\"human rights\"",
+    "conflict",
+    "security",
+
+  ];
+  static const SDG17_KEYWORDS = [
+    "\"global partnership\"",
+    "development",
+    "aid",
+    "funding",
+    "cooperation",
+    "UN",
+  ];
 
   static Uri _getUri({bool https = true, Map<String, dynamic>? params}) {
     return https
@@ -61,19 +175,19 @@ class NewsApiRequester {
 
   /// # [getNews]
   /// Retrieve news from fcsapi. [sdg] and [onSuccess] are required.
-  /// 
+  ///
   /// ## Parameters
   /// The [sdg] refers to the SDG goal number.
-  /// 
-  /// [onSuccess] is a callback for when the request succeeds. The first 
+  ///
+  /// [onSuccess] is a callback for when the request succeeds. The first
   /// parameter is the message of the response. The second is The [NewsResponse]
   /// that contains the retrieved news.
-  /// 
+  ///
   /// [onFail] is a callback for when the request fails. The first parameter is
   /// The message of the response.
-  /// 
+  ///
   /// [limit] refers to the number of results to request for. Defaults to 20.
-  /// 
+  ///
   static Future<void> getNews({
     required int sdg,
     required Function(String, NewsResponse) onSuccess,
@@ -200,12 +314,12 @@ class NewsApiRequester {
 
 /// # [NewsResponse]
 /// Contains the result of the news api request.
-/// 
+///
 /// [status] refers to whether the request succeeded or failed.
 /// [code] refers to the http status code of the response.
 /// [msg] is the message of the response.
 /// [news] is a list of news sent by the response.
-/// 
+///
 class NewsResponse {
   bool status;
   int code;
@@ -222,19 +336,19 @@ class NewsResponse {
 
 /// # [NewsItem]
 /// Contains information about a single news result.
-/// 
+///
 /// [id] is the id of the news in fcsapi.
-/// 
+///
 /// [source] is the url to the web view of the news.
-/// 
+///
 /// [site] refers to the site origin of the news.
-/// 
+///
 /// [country] is a comma separated list of country codes.
-/// 
+///
 /// [keywords] is a [List] of keywords
-/// 
+///
 /// [newsImage] contains either an image or video url of the news. see [NewsImage]
-/// 
+///
 /// [contentApi] is the fcsapi url to view the content of the news.
 class NewsItem {
   String id;
@@ -264,7 +378,7 @@ class NewsItem {
     required this.author,
     required this.keywords,
     required this.newsImage,
-    required this.contentApi
+    required this.contentApi,
   });
 
   @override
