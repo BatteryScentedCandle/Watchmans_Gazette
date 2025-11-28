@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/screens/articles_page.dart';
 
 class SignUpPage extends StatefulWidget{
   const SignUpPage({super.key});
@@ -73,9 +75,32 @@ class SignUpPage extends StatefulWidget{
 
   Future<User?> signUpUser(String email, String password, BuildContext context) async {
     try {
+
+      FirebaseFirestore db = FirebaseFirestore.instance;
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
+
+      String uid = userCredential.user!.uid;
+      final userInfo = <String, dynamic>{
+        "email": email,
+        "password": password
+      };
+
+      await db.collection("users").doc(uid).set(userInfo);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Welcome to The Watchman's Gazette"),
+        ),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ArticlesPage()),
+      );
+
       return userCredential.user;
+
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

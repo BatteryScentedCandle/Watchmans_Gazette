@@ -11,7 +11,7 @@ Future<void> fetchArticles() async{
   }
 }
 
-class ArticlesPage {
+class ArticlesPage extends StatefulWidget{
   //const ArticlesPage({super.key});
 
   @override
@@ -21,5 +21,11 @@ class ArticlesPage {
 
       ),
     );
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
   }
 }
