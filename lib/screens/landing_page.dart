@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'sign_up_page.dart';
 import 'login_page.dart';
 
@@ -19,7 +18,7 @@ class LandingPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginPage()), //need to fix somehow
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
               child: Text('Login'),
@@ -28,7 +27,7 @@ class LandingPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SignUpPage()), //need to fix somehow
+                  MaterialPageRoute(builder: (context) => SignUpPage()),
                 );
               },
               child: Text('Sign Up'),
