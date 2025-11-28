@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  String username = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +21,9 @@ class LoginPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _header(context),
-              _inputField(context),
-              _forgotPassword(context),
-              _signup(context),
+              _inputField(),
+              _loginButton(context),
+              _signup(),
             ],
           ),
         ),
@@ -24,83 +31,63 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  _header(context) {
-    return const Column(
-      children: [
-        Text(
-          "Welcome Back",
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-        ),
-        Text("Enter your credential to login"),
-      ],
-    );
-  }
-
-  _inputField(context) {
+  _inputField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(
-          decoration: InputDecoration(
-              hintText: "Username",
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none
-              ),
-              fillColor: Colors.purple.withOpacity(0.1),
-              filled: true,
-              prefixIcon: const Icon(Icons.person)),
+          decoration: const InputDecoration(hintText: "Username"),
+          onChanged: (value) {
+            setState(() {
+              username = value; // Store username in state
+            });
+          },
         ),
         const SizedBox(height: 10),
         TextField(
-          decoration: InputDecoration(
-            hintText: "Password",
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide.none),
-            fillColor: Colors.purple.withOpacity(0.1),
-            filled: true,
-            prefixIcon: const Icon(Icons.password),
-          ),
+          decoration: const InputDecoration(hintText: "Password"),
           obscureText: true,
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
+          onChanged: (value) {
+            setState(() {
+              password = value; // Store password in state
+            });
           },
-          style: ElevatedButton.styleFrom(
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.purple,
-          ),
-          child: const Text(
-            "Login",
-            style: TextStyle(fontSize: 20),
-          ),
-        )
+        ),
       ],
     );
   }
 
-  _forgotPassword(context) {
-    return TextButton(
-      onPressed: () {},
-      child: const Text("Forgot password?",
-        style: TextStyle(color: Colors.purple),
-      ),
+  // Login button to authenticate the user
+  _loginButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        signInUser(username, password, context);
+      },
+      child: const Text("Login"),
     );
   }
 
-  _signup(context) {
+  // Method to handle user sign-in
+  Future<void> signInUser(String username, String password, BuildContext context) async {
+    // Implement Firebase authentication logic here
+    // For example:
+    // try {
+    //   UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: username, password: password);
+    // } catch (e) {
+    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login failed")));
+    // }
+  }
+
+  // Link for signing up
+  _signup() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Dont have an account? "),
+        const Text("Don't have an account? "),
         TextButton(
-            onPressed: () {
-            },
-            child: const Text("Sign Up", style: TextStyle(color: Colors.purple),)
-        )
+          onPressed: () {},
+          child: const Text("Sign Up"),
+        ),
       ],
     );
   }
