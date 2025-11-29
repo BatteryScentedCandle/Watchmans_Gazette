@@ -73,6 +73,7 @@ class ArticlesPage extends StatefulWidget {
 
 class _ArticlesPageState extends State<ArticlesPage> {
   final Map<int, NewsItem> _news = Map.identity();
+  final ScrollController _scrollController = ScrollController();
   bool _loadingNews = false;
 
   @override
@@ -112,16 +113,23 @@ class _ArticlesPageState extends State<ArticlesPage> {
       appBar: AppBar(title: const Text('News Articles')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: NotificationListener<OverscrollNotification>(
+        child: NotificationListener<OverscrollIndicatorNotification>(
           onNotification: (scroll) {
-            _loadMoreNews(1);
+            if(_scrollController.position.userScrollDirection == .forward){
+              return false;
+            }
+            _loadMoreNews(5);
             return true;
           },
           child: RefreshIndicator(
             onRefresh: () async {
-              _loadMoreNews(1);
+              setState(() {
+                _news.clear();
+              });
+              _loadMoreNews(4);
             },
             child: GridView.builder(
+              controller: _scrollController,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 8,
