@@ -9,7 +9,7 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     const SizedBox(height: 50),
                     const Text(
-                        "Welcome Back to \nThe Watchman's Gazette",
+                      "Welcome Back to \nThe Watchman's Gazette",
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 20),
@@ -60,7 +60,27 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () async {
-                        await LoginUser(email, password, context);
+                        await loginUser(
+                          email: email,
+                          password: password,
+                          onSuccess: (message) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticlesPage(),
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                          onFail: (message) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                        );
                       },
                       child: const Text("Log In"),
                     ),
@@ -71,14 +91,17 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     const Text("Don't have an account?"),
                     TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SignUpPage()),
-                          );
-                        },
-                        child: const Text("Sign Up", style: TextStyle(color: Colors.purple),)
-                    )
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignUpPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(color: Colors.purple),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -89,59 +112,50 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<User?> LoginUser(
-    String email,
-    String password,
-    BuildContext context,
-  ) async {
+}
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please complete all inputs before proceeding."),
-        ),
-      );
-      return null;
+Future<User?> loginUser({
+    required String email,
+    required String password,
+    required Function(String) onSuccess,
+    Function(String)? onFail,
+    }) async {
+  if (email.isEmpty || password.isEmpty) {
+    if (onFail != null) {
+      onFail("Please complete all inputs before proceeding.");
     }
+    return null;
+  }
 
-    try {
+  try {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      FirebaseAuth auth = FirebaseAuth.instance;
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+    UserCredential userCredential = await auth.signInWithEmailAndPassword(
         email: email,
         password: password,
-      );
+        );
 
-      String uid = userCredential.user!.uid;
+    String uid = userCredential.user!.uid;
 
-      DocumentSnapshot userDoc = await firestore
-          .collection('users')
-          .doc(uid)
-          .get();
-      if (!userDoc.exists) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("User does not exist")));
-        return null;
+    DocumentSnapshot userDoc = await firestore
+      .collection('users')
+      .doc(uid)
+      .get();
+    if (!userDoc.exists) {
+      if (onFail != null) {
+        onFail("User does not exist");
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Welcome to The Watchman's Gazette")),
-      );
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ArticlesPage()),
-      );
-
-      return userCredential.user;
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Unable to Log In")));
       return null;
     }
+
+    onSuccess("Welcome to The Watchman's Gazette");
+
+    return userCredential.user;
+  } catch (e) {
+    if (onFail != null) {
+      onFail("Unable to Log In");
+    }
+    return null;
   }
 }

@@ -8,7 +8,7 @@ class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
@@ -56,7 +56,31 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () async {
-                        await signUpUser(email, password, context);
+                        await signUpUser(
+                          email: email,
+                          password: password,
+                          onSuccess: (message) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Welcome to The Watchman's Gazette",
+                                ),
+                              ),
+                            );
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticlesPage(),
+                              ),
+                            );
+                          },
+                          onFail: (message) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                        );
                       },
                       child: const Text("Sign Up"),
                     ),
@@ -67,14 +91,17 @@ class _SignUpPageState extends State<SignUpPage> {
                   children: <Widget>[
                     const Text("Already have an account?"),
                     TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                          );
-                        },
-                        child: const Text("Login", style: TextStyle(color: Colors.purple),)
-                    )
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.purple),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -86,18 +113,18 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-Future<User?> signUpUser(
-  String email,
-  String password,
-  BuildContext context,
-) async {
+Future<void> signUpUser({
+  required String email,
+  required String password,
+  required Function(String) onSuccess,
+  Function(String)? onFail,
+}) async {
   try {
-
-    if (email.isEmpty || password.isEmpty){
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please complete all inputs before proceeding.")),
-      );
-      return null;
+    if (email.isEmpty || password.isEmpty) {
+      if (onFail != null) {
+        onFail("Please complete all inputs before proceeding.");
+      }
+      return;
     }
 
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -105,27 +132,14 @@ Future<User?> signUpUser(
         .createUserWithEmailAndPassword(email: email, password: password);
 
     String uid = userCredential.user!.uid;
-    final userInfo = <String, dynamic>{
-      "email": email,
-      "password": password
-    };
+    final userInfo = <String, dynamic>{"email": email, "password": password};
 
     await db.collection("users").doc(uid).set(userInfo);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Welcome to The Watchman's Gazette"),
-      ),
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ArticlesPage()),
-    );
-
+    onSuccess("Welcome to The Watchman's Gazette");
   } catch (e) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Unable to Sign Up")));
-    return null;
+    if (onFail != null) {
+      onFail("Unable to Sign Up");
+    }
+    return;
   }
 }
