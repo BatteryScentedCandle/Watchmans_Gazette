@@ -72,25 +72,29 @@ class ArticlesPage extends StatefulWidget {
 }
 
 class _ArticlesPageState extends State<ArticlesPage> {
-  final List<NewsItem> _news = List.empty(growable: true);
+  final Map<int, NewsItem> _news = Map.identity();
   bool _loadingNews = false;
 
   @override
   void initState() {
     super.initState();
-    _loadMoreNews(1);
+    _loadMoreNews(4);
   }
 
   void _loadMoreNews(int sdg) async {
-    if(_loadingNews){
+    if (_loadingNews) {
       return;
     }
     _loadingNews = true;
     await NewsApiRequester.getNews(
       sdg: sdg,
+      limit: 20,
       onSuccess: (message, result) {
         setState(() {
-          _news.addAll(result.news);
+          debugPrint("size of news: ${result.news.length}");
+          for (var newsItem in result.news) {
+            _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
+          }
           _loadingNews = false;
         });
       },
@@ -126,7 +130,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
               ),
               itemCount: _news.length,
               itemBuilder: (context, index) {
-                return NewsGridItem(article: _news[index]);
+                return NewsGridItem(article: _news.values.elementAt(index));
               },
             ),
           ),
