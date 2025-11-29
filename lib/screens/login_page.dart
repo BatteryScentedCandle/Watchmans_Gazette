@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'articles_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -8,87 +12,117 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String username = '';
-  String password = '';
+  String email = "";
+  String password = "";
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _inputField(),
-              _loginButton(context),
-              _signup(),
-            ],
+        body: SingleChildScrollView(
+          child: Container(
+            //add ui stuff here
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    const SizedBox(height: 50),
+                    const Text("Log In"),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    TextField(
+                      decoration: const InputDecoration(hintText: "Email"),
+                      onChanged: (value) {
+                        setState(() {
+                          email = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      decoration: const InputDecoration(hintText: "Password"),
+                      onChanged: (value) {
+                        setState(() {
+                          password = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await LoginUser(email, password, context);
+                      },
+                      child: const Text("Log In"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  _inputField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          decoration: const InputDecoration(hintText: "Username"),
-          onChanged: (value) {
-            setState(() {
-              username = value; // Store username in state
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          decoration: const InputDecoration(hintText: "Password"),
-          obscureText: true,
-          onChanged: (value) {
-            setState(() {
-              password = value; // Store password in state
-            });
-          },
-        ),
-      ],
-    );
-  }
+  Future<User?> LoginUser(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
 
-  // Login button to authenticate the user
-  _loginButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        signInUser(username, password, context);
-      },
-      child: const Text("Login"),
-    );
-  }
-
-  // Method to handle user sign-in
-  Future<void> signInUser(String username, String password, BuildContext context) async {
-    // Implement Firebase authentication logic here
-    // For example:
-    // try {
-    //   UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: username, password: password);
-    // } catch (e) {
-    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login failed")));
-    // }
-  }
-
-  // Link for signing up
-  _signup() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("Don't have an account? "),
-        TextButton(
-          onPressed: () {},
-          child: const Text("Sign Up"),
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please complete all inputs before proceeding."),
         ),
-      ],
-    );
+      );
+      return null;
+    }
+
+    try {
+
+      FirebaseAuth auth = FirebaseAuth.instance;
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      String uid = userCredential.user!.uid;
+
+      DocumentSnapshot userDoc = await firestore
+          .collection('users')
+          .doc(uid)
+          .get();
+      if (!userDoc.exists) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("User does not exist")));
+        return null;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Welcome to The Watchman's Gazette")),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ArticlesPage()),
+      );
+
+      return userCredential.user;
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Unable to Log In")));
+      return null;
+    }
   }
 }
