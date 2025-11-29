@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:watchmans_gazette/screens/sign_up_page.dart';
 
 import 'articles_page.dart';
 
@@ -30,7 +31,10 @@ class _LoginPageState extends State<LoginPage> {
                 Column(
                   children: <Widget>[
                     const SizedBox(height: 50),
-                    const Text("Log In"),
+                    const Text(
+                        "Welcome Back to \nThe Watchman's Gazette",
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -60,6 +64,21 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: const Text("Log In"),
                     ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text("Don't have an account?"),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SignUpPage()),
+                          );
+                        },
+                        child: const Text("Sign Up", style: TextStyle(color: Colors.purple),)
+                    )
                   ],
                 ),
               ],
