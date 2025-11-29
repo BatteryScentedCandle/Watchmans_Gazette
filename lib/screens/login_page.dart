@@ -1,3 +1,161 @@
-class LoginPage {
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:watchmans_gazette/screens/sign_up_page.dart';
 
+import 'articles_page.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  String email = "";
+  String password = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            //add ui stuff here
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    const SizedBox(height: 50),
+                    const Text(
+                      "Welcome Back to \nThe Watchman's Gazette",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    TextField(
+                      decoration: const InputDecoration(hintText: "Email"),
+                      onChanged: (value) {
+                        setState(() {
+                          email = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      decoration: const InputDecoration(hintText: "Password"),
+                      onChanged: (value) {
+                        setState(() {
+                          password = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await loginUser(
+                          email: email,
+                          password: password,
+                          onSuccess: (message) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticlesPage(),
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                          onFail: (message) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                        );
+                      },
+                      child: const Text("Log In"),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text("Don't have an account?"),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignUpPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(color: Colors.purple),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+}
+
+Future<User?> loginUser({
+    required String email,
+    required String password,
+    required Function(String) onSuccess,
+    Function(String)? onFail,
+    }) async {
+  if (email.isEmpty || password.isEmpty) {
+    if (onFail != null) {
+      onFail("Please complete all inputs before proceeding.");
+    }
+    return null;
+  }
+
+  try {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+        );
+
+    String uid = userCredential.user!.uid;
+
+    DocumentSnapshot userDoc = await firestore
+      .collection('users')
+      .doc(uid)
+      .get();
+    if (!userDoc.exists) {
+      if (onFail != null) {
+        onFail("User does not exist");
+      }
+      return null;
+    }
+
+    onSuccess("Welcome to The Watchman's Gazette");
+
+    return userCredential.user;
+  } catch (e) {
+    if (onFail != null) {
+      onFail("Unable to Log In");
+    }
+    return null;
+  }
 }
