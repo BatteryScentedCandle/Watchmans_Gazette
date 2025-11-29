@@ -1,27 +1,8 @@
 import 'package:flutter/material.dart';
-
-class NewsArticle {
-  final String title;
-  final String description;
-  final String imageUrl;
-  final String publishedAt;
-
-  const NewsArticle({
-    required this.title,
-    required this.description,
-    required this.imageUrl,
-    required this.publishedAt,
-  });
-}
-
-class NewsResponse {
-  final List<NewsArticle> news;
-
-  const NewsResponse({required this.news});
-}
+import 'package:watchmans_gazette/news/news_api_requester.dart';
 
 class NewsGridItem extends StatelessWidget {
-  final NewsArticle article;
+  final NewsItem article;
 
   const NewsGridItem({super.key, required this.article});
 
@@ -37,7 +18,7 @@ class NewsGridItem extends StatelessWidget {
             width: double.infinity,
             color: Colors.grey[300],
             child: Image.network(
-              article.imageUrl,
+              article.newsImage.img,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return const Icon(Icons.article, color: Colors.grey);
@@ -84,40 +65,73 @@ class NewsGridItem extends StatelessWidget {
 }
 
 class ArticlesPage extends StatefulWidget {
-  final List<NewsArticle> articles;
-
-  const ArticlesPage({super.key, required this.articles});
+  const ArticlesPage({super.key});
 
   @override
   State<ArticlesPage> createState() => _ArticlesPageState();
 }
 
 class _ArticlesPageState extends State<ArticlesPage> {
+  final List<NewsItem> _news = List.empty(growable: true);
+  bool _loadingNews = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMoreNews(1);
+  }
+
+  void _loadMoreNews(int sdg) async {
+    if(_loadingNews){
+      return;
+    }
+    _loadingNews = true;
+    await NewsApiRequester.getNews(
+      sdg: sdg,
+      onSuccess: (message, result) {
+        setState(() {
+          _news.addAll(result.news);
+          _loadingNews = false;
+        });
+      },
+      onFail: (message) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('News Articles')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.8,
-          ),
-          itemCount: widget.articles.length,
-          itemBuilder: (context, index) {
-            return NewsGridItem(article: widget.articles[index]);
+        child: NotificationListener<OverscrollNotification>(
+          onNotification: (scroll) {
+            _loadMoreNews(1);
+            return true;
           },
+          child: RefreshIndicator(
+            onRefresh: () async {
+              _loadMoreNews(1);
+            },
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 0.8,
+              ),
+              itemCount: _news.length,
+              itemBuilder: (context, index) {
+                return NewsGridItem(article: _news[index]);
+              },
+            ),
+          ),
         ),
       ),
     );
-  }
-}
-
-class NewsService {
-  static Future<NewsResponse> getNews({required int sdg}) async {
-    return NewsResponse(news: []);
   }
 }
