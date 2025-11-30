@@ -14,8 +14,21 @@ class _MainScreenState extends State<MainScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(_appBarTitle),
-      actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
+      elevation: 0,
+      toolbarHeight: 70,
+      centerTitle: true,
+      title: Text(
+        _appBarTitle,
+        style: TextStyle(
+          fontFamily: 'Metropolis',
+          fontSize: 24,
+          fontWeight: FontWeight.w400,
+          color: Colors.white,
+          letterSpacing: 1.5,
+        ),
+      ),
+
+      actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search_rounded))],
     );
   }
 
@@ -30,10 +43,10 @@ class _MainScreenState extends State<MainScreen> {
           label: "Profile",
         ),
       ],
-      onDestinationSelected: (index){
+      onDestinationSelected: (index) {
         setState(() {
-            _curFragment = index;
-            switch (_curFragment) {
+          _curFragment = index;
+          switch (_curFragment) {
             case 1:
               _appBarTitle = "Bookmarks";
             case 2:
@@ -41,25 +54,25 @@ class _MainScreenState extends State<MainScreen> {
             case 0:
             default:
               _appBarTitle = "News Articles";
-            }
+          }
         });
       },
     );
   }
 
-  Widget _buildHome(){
+  Widget _buildHome() {
     return ArticlesPage();
   }
 
-  Widget _buildBookmarks(){
+  Widget _buildBookmarks() {
     return ArticlesPage();
   }
 
-  Widget _buildProfile(){
+  Widget _buildProfile() {
     return ArticlesPage();
   }
 
-  Widget _buildBody(){
+  Widget _buildBody() {
     switch (_curFragment) {
       case 0:
         return _buildHome();

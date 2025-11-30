@@ -26,11 +26,11 @@ class LandingPage extends StatelessWidget {
                   );
                 },
 
-                child: Text('Login', style: TextStyle(color: Colors.black)),
+                child: Text('Login', style: TextStyle(color: Colors.black54)),
               ),
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: 20),
 
             SizedBox(
               width: 200,
@@ -43,7 +43,7 @@ class LandingPage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => SignUpPage()),
                   );
                 },
-                child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+                child: Text('Sign Up', style: TextStyle(color: Colors.black54)),
               ),
             ),
           ],

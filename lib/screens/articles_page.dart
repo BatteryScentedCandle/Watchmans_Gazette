@@ -10,9 +10,11 @@ class NewsGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          //Image
           Container(
             height: 120,
             width: double.infinity,
@@ -25,38 +27,53 @@ class NewsGridItem extends StatelessWidget {
               },
             ),
           ),
+
+          //Text Contents
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    article.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Expanded(
-                    child: Text(
-                      article.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    article.publishedAt,
-                    style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
+           child: Container(
+             color: Color(0xFFF8EDEA),
+             child: Padding(
+               padding: const EdgeInsets.all(8.0),
+               child: Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Text(
+                     article.title,
+                     maxLines: 2,
+                     overflow: TextOverflow.ellipsis,
+                     style: const TextStyle(
+                       fontFamily: 'Metropolis',
+                       fontWeight: FontWeight.w600,
+                       fontSize: 12,
+                     ),
+                   ),
+                   const SizedBox(height: 4),
+                   Expanded(
+                     child: Text(
+                       article.description,
+                       maxLines: 2,
+                       overflow: TextOverflow.ellipsis,
+                       style: TextStyle(
+                           fontFamily: 'Metropolis',
+                           fontWeight: FontWeight.w500,
+                           fontSize: 10,
+                           color: Colors.grey[600]),
+                     ),
+                   ),
+                   const SizedBox(height: 8),
+                   Text(
+                     article.publishedAt,
+                     style: TextStyle(
+                       fontFamily: 'Metropolis',
+                       fontWeight: FontWeight.w300,
+                       fontSize: 10,
+                       color: Colors.grey[500],
+                     ),
+                   ),
+                 ],
+               ),
+             ),
+           ),
           ),
         ],
       ),
@@ -110,37 +127,37 @@ class _ArticlesPageState extends State<ArticlesPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: NotificationListener<OverscrollIndicatorNotification>(
-          onNotification: (scroll) {
-            if(_scrollController.position.userScrollDirection == .forward){
-              return false;
-            }
-            _loadMoreNews(5);
-            return true;
+      padding: const EdgeInsets.all(16.0),
+      child: NotificationListener<OverscrollIndicatorNotification>(
+        onNotification: (scroll) {
+          if (_scrollController.position.userScrollDirection == .forward) {
+            return false;
+          }
+          _loadMoreNews(5);
+          return true;
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _news.clear();
+            });
+            _loadMoreNews(4);
           },
-          child: RefreshIndicator(
-            onRefresh: () async {
-              setState(() {
-                _news.clear();
-              });
-              _loadMoreNews(4);
-            },
-            child: GridView.builder(
-              controller: _scrollController,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 0.8,
-              ),
-              itemCount: _news.length,
-              itemBuilder: (context, index) {
-                return NewsGridItem(article: _news.values.elementAt(index));
-              },
+          child: GridView.builder(
+            controller: _scrollController,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 0.8,
             ),
+            itemCount: _news.length,
+            itemBuilder: (context, index) {
+              return NewsGridItem(article: _news.values.elementAt(index));
+            },
           ),
         ),
+      ),
     );
   }
 }
