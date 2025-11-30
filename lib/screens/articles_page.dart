@@ -140,7 +140,9 @@ class _ArticlesPageState extends State<ArticlesPage> {
           : _searchFilter!.sdgFilters,
       onReceived: (message, result) {
         setState(() {
-          _newsStream.add(result);
+          if (!_newsStream.isClosed) {
+            _newsStream.add(result);
+          }
           _loadingNews = false;
         });
       },
@@ -194,6 +196,14 @@ class _ArticlesPageState extends State<ArticlesPage> {
     );
   }
 
+  void _resetNews() {
+    if (!_newsStream.isClosed) {
+      _newsStream.close();
+    }
+    _newsStream = StreamController();
+    _news.clear();
+  }
+
   Widget _buildLoadingBody() {
     return Center(child: CircularProgressIndicator(color: AppColors.primary));
   }
@@ -206,7 +216,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {
-          _news.clear();
+          _resetNews();
         });
         _loadMoreNews();
       },
