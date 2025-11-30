@@ -4,8 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:watchmans_gazette/screens/main_screen.dart';
 import 'package:watchmans_gazette/screens/sign_up_page.dart';
 
-import 'articles_page.dart';
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 

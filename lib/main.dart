@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:watchmans_gazette/screens/landing_page.dart';
 import 'package:watchmans_gazette/firebase_options.dart';
 import 'package:watchmans_gazette/screens/splash_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
+import 'package:watchmans_gazette/news/search_filter.dart';
+import 'package:watchmans_gazette/screens/search_screen.dart';
 
 class NewsGridItem extends StatelessWidget {
   final NewsItem article;
@@ -75,6 +77,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
   final Map<int, NewsItem> _news = Map.identity();
   final ScrollController _scrollController = ScrollController();
   bool _loadingNews = false;
+  SearchFilter? _searchFilter;
 
   @override
   void initState() {
@@ -88,6 +91,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
     }
     _loadingNews = true;
     await NewsApiRequester.getNews(
+      search: _searchFilter?.search,
       sdg: sdg,
       limit: 20,
       onSuccess: (message, result) {
@@ -107,13 +111,43 @@ class _ArticlesPageState extends State<ArticlesPage> {
     );
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text("News Articles"),
+      actions: [
+        IconButton(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return SearchScreen();
+                },
+              ),
+            );
+            if (result is SearchFilter) {
+              setState(() {
+                _searchFilter = result;
+                _news.clear();
+                _loadMoreNews(4);
+              });
+            }
+          },
+          icon: Icon(Icons.search),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: NotificationListener<OverscrollIndicatorNotification>(
           onNotification: (scroll) {
-            if(_scrollController.position.userScrollDirection == .forward){
+            if (_scrollController.position.userScrollDirection == .forward) {
               return false;
             }
             _loadMoreNews(5);
@@ -141,6 +175,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
             ),
           ),
         ),
+      ),
     );
   }
 }

@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:watchmans_gazette/news/sdg_keywords.dart';
+import 'package:watchmans_gazette/news/sdg_constants.dart';
 
 class ParamKeywords {
   static const ACCESS_KEY = "access_key";
@@ -62,10 +62,11 @@ class NewsApiRequester {
     required int sdg,
     required Function(String, NewsResponse) onSuccess,
     Function(String)? onFail,
+    String? search,
     int limit = 20,
   }) async {
     final String apiKey = String.fromEnvironment(NEWS_API_KEY);
-    final String keywords = _sdgKeywords(sdg);
+    final String keywords = search != null ? "\"$search\"" : _sdgKeywords(sdg);
 
     Map<String, dynamic> params = {
       ParamKeywords.ACCESS_KEY: apiKey,
