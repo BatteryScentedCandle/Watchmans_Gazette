@@ -109,9 +109,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('News Articles')),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(16.0),
         child: NotificationListener<OverscrollIndicatorNotification>(
           onNotification: (scroll) {
@@ -143,7 +141,6 @@ class _ArticlesPageState extends State<ArticlesPage> {
             ),
           ),
         ),
-      ),
     );
   }
 }
