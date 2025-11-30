@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
@@ -98,36 +100,78 @@ class _ArticlesPageState extends State<ArticlesPage> {
   bool _loadingNews = false;
   SearchFilter? _searchFilter;
 
+  StreamController<List<NewsItem>> _newsStream = StreamController();
+
   @override
   void initState() {
     super.initState();
-    _loadMoreNews();
+    WidgetsBinding.instance.addPostFrameCallback((duration) {
+      _loadMoreNews();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _newsStream.close();
+  }
+
+  void _addNews(List<NewsItem> news) {
+    for (var newsItem in news) {
+      _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
+    }
   }
 
   void _loadMoreNews() async {
     if (_loadingNews) {
       return;
     }
-    _loadingNews = true;
+    if (_newsStream.hasListener) {
+      return;
+    }
+    setState(() {
+      _loadingNews = true;
+      if (!_newsStream.hasListener) {
+        _newsStream.stream.listen(_addNews);
+      }
+    });
     await NewsApiRequester.getNewsBatch(
       search: _searchFilter?.search,
+      loadedIds: _news.keys.toList(),
       selectedSDGs: _searchFilter == null
           ? List.filled(17, true)
           : _searchFilter!.sdgFilters,
       onReceived: (message, result) {
         setState(() {
-          for (var newsItem in result) {
-            _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
+          if (!_newsStream.isClosed) {
+            _newsStream.add(result);
           }
           _loadingNews = false;
         });
       },
-      onFinish: () {
+      onFail: (message) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      },
+      onFinish: () async {
         debugPrint("done loading");
+        await _newsStream.close();
         setState(() {
           _loadingNews = false;
         });
       },
+    );
+  }
+
+  Future<dynamic> _showSearchScreen() async {
+    return await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return SearchScreen(existingFilter: _searchFilter);
+        },
+      ),
     );
   }
 
@@ -137,18 +181,14 @@ class _ArticlesPageState extends State<ArticlesPage> {
       actions: [
         IconButton(
           onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return SearchScreen(existingFilter: _searchFilter);
-                },
-              ),
-            );
-            if (result is SearchFilter) {
+            await _newsStream.close();
+            final result = await _showSearchScreen();
+            if (!context.mounted) return;
+            if (result is SearchFilter?) {
               setState(() {
-                _searchFilter = result;
+                _newsStream = StreamController();
                 _news.clear();
+                _searchFilter = result;
                 _loadMoreNews();
               });
             }
@@ -157,6 +197,14 @@ class _ArticlesPageState extends State<ArticlesPage> {
         ),
       ],
     );
+  }
+
+  void _resetNews() {
+    if (!_newsStream.isClosed) {
+      _newsStream.close();
+    }
+    _newsStream = StreamController();
+    _news.clear();
   }
 
   Widget _buildLoadingBody() {
@@ -171,7 +219,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
     return RefreshIndicator(
       onRefresh: () async {
         setState(() {
-          _news.clear();
+          _resetNews();
         });
         _loadMoreNews();
       },
@@ -212,6 +260,8 @@ class _ArticlesPageState extends State<ArticlesPage> {
             if (_scrollController.position.userScrollDirection == .forward) {
               return false;
             }
+            _newsStream.close();
+            _newsStream = StreamController();
             _loadMoreNews();
             return true;
           },

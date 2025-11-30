@@ -21,7 +21,10 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     if (widget.existingFilter != null) {
       setState(() {
-        _searchController.text = widget.existingFilter!.search ?? "";
+        _searchController.text = widget.existingFilter?.search ?? "";
+        if (widget.existingFilter == null) {
+          return;
+        }
         for (int i = 0; i < widget.existingFilter!.sdgFilters.length; i++) {
           _sdgChoices[i] = widget.existingFilter!.sdgFilters[i];
         }

@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:watchmans_gazette/news/sdg_constants.dart';
 
@@ -63,8 +62,10 @@ class NewsApiRequester {
     required int sdg,
     required Function(String, NewsResponse) onSuccess,
     Function(String)? onFail,
+    List<int> loadedIds = const [],
     String? search,
-    int limit = 20,
+    int target = 5,
+    int limit = 40,
   }) async {
     final String apiKey = String.fromEnvironment(NEWS_API_KEY);
     final String keywords = search != null && search.isNotEmpty
@@ -99,7 +100,13 @@ class NewsApiRequester {
       return;
     }
 
-    final newsItems = _extractNews(body["response"], sdg);
+    final newsItems = _extractNews(
+      news: body["response"],
+      sdg: sdg,
+      limit: limit,
+      target: target,
+      loadedIds: loadedIds,
+    );
     final news = NewsResponse(
       status: status,
       code: code,
@@ -136,8 +143,10 @@ class NewsApiRequester {
     required Function(String, List<NewsItem>) onReceived,
     Function(String)? onFail,
     Function()? onFinish,
+    List<int> loadedIds = const [],
     String? search,
-    int limit = 5,
+    int target = 5,
+    int limit = 40,
   }) async {
     bool oneSelected = false;
     for (var selected in selectedSDGs) {
@@ -152,7 +161,11 @@ class NewsApiRequester {
 
     List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
 
+    bool failed = false;
     for (var sdg in sdgNumbers) {
+      if (failed) {
+        break;
+      }
       await getNews(
         sdg: sdg,
         limit: limit,
@@ -161,6 +174,7 @@ class NewsApiRequester {
           onReceived(message, result.news);
         },
         onFail: (message) {
+          failed = true;
           if (onFail != null) {
             onFail(message);
           }
@@ -183,15 +197,37 @@ class NewsApiRequester {
     return numbers;
   }
 
-  static List<NewsItem> _extractNews(List<dynamic> news, int sdg) {
-    List<NewsItem> newsItems = .generate(news.length, (index) {
-      final map = news[index];
-      return _extractNewsItem(map, sdg);
-    });
+  static List<NewsItem> _extractNews({
+    required List<dynamic> news,
+    required int sdg,
+    required int limit,
+    required int target,
+    required List<int> loadedIds,
+  }) {
+    List<NewsItem> newsItems = List.empty(growable: true);
+    for (var i = 0; i < news.length; i++) {
+      if(i >= target - 1){
+        break;
+      }
+      final map = news[i];
+      final newsItem = _extractNewsItem(map, sdg, loadedIds);
+      if(newsItem == null){
+        continue;
+      }
+      newsItems.add(newsItem);
+    }
+
     return newsItems;
   }
 
-  static NewsItem _extractNewsItem(Map<String, dynamic> news, int sdg) {
+  static NewsItem? _extractNewsItem(
+    Map<String, dynamic> news,
+    int sdg,
+    List<int> loadedIds,
+  ) {
+    if(loadedIds.contains(int.parse(news["id"]))){
+      return null;
+    }
     NewsImage newsImage = NewsImage(
       img: news["image"]["img"],
       video: news["image"]["video"],
