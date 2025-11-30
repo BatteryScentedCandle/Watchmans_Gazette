@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
             error: AppColors.error,
         ),
 
+        cardColor: AppColors.tertiary,
         scaffoldBackgroundColor: AppColors.background,
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.primary,

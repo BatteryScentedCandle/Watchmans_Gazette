@@ -17,167 +17,170 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            // add ui stuff here
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    const SizedBox(height: 100),
-                    const Text(
-                      "Become a Member of \nThe Watchmen",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 1,
-                        color: Colors.black,
-                        height: 1.5,
-                      ),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          // add ui stuff here
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  const SizedBox(height: 100),
+                  const Text(
+                    "Become a Member of \nThe Watchmen",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 1,
+                      color: Colors.black,
+                      height: 1.5,
                     ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 350,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                          floatingLabelStyle: TextStyle(color: Colors.black),
-                          prefixIcon: Icon(Icons.email_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+              Column(
+                children: <Widget>[
+                  SizedBox(
+                    width: 350,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        labelStyle: TextStyle(fontWeight: FontWeight.normal),
+                        floatingLabelStyle: TextStyle(color: Color(0xFFB87A7A)),
+                        prefixIcon: Icon(Icons.email_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          borderSide: BorderSide(
+                            color: Color(0xFFD4C4B0),
+                            width: 2,
                           ),
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            email = value;
-                          });
-                        },
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          email = value;
+                        });
+                      },
                     ),
-                    const SizedBox(height: 25),
+                  ),
+                  const SizedBox(height: 25),
 
-                    SizedBox(
-                      width: 350,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          labelText: "Password",
-                          labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                          floatingLabelStyle: TextStyle(color: Colors.black),
-                          prefixIcon: Icon(Icons.password_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
+                  SizedBox(
+                    width: 350,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: "Password",
+                        labelStyle: TextStyle(fontWeight: FontWeight.normal),
+                        floatingLabelStyle: TextStyle(color: Color(0xFFB87A7A)),
+                        prefixIcon: Icon(Icons.password_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          borderSide: BorderSide(
+                            color: Color(0xFFD4C4B0),
+                            width: 2,
                           ),
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            password = value;
-                          });
-                        },
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          password = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: 200,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await signUpUser(
+                          email: email,
+                          password: password,
+                          onSuccess: (message) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Welcome to The Watchman's Gazette",
+                                ),
+                              ),
+                            );
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticlesPage(),
+                              ),
+                            );
+                          },
+                          onFail: (message) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                        );
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
 
-                    SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await signUpUser(
-                            email: email,
-                            password: password,
-                            onSuccess: (message) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Welcome to The Watchman's Gazette",
-                                  ),
-                                ),
-                              );
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ArticlesPage(),
-                                ),
-                              );
-                            },
-                            onFail: (message) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(message)));
-                            },
-                          );
-                        },
-                        child: const Text("Sign Up"),
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    "Already have an account?",
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
+                  ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      "Already have an account?",
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    },
+
+                    child: const Text(
+                      "Login",
                       style: TextStyle(
                         fontFamily: 'Metropolis',
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: 1,
-                        color: Colors.black54,
+                        color: Color(0xFFC4B0DC),
                       ),
                     ),
-
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      },
-
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
-                          color: Colors.purple,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

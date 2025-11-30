@@ -50,14 +50,17 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: const InputDecoration(
                         labelText: "Email",
                         labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                        floatingLabelStyle: TextStyle(color: Colors.black),
+                        floatingLabelStyle: TextStyle(color: Color(0xFFB87A7A)),
                         prefixIcon: Icon(Icons.email_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
-                          borderSide: BorderSide(color: Colors.black, width: 2),
+                          borderSide: BorderSide(
+                            color: Color(0xFFD4C4B0),
+                            width: 2,
+                          ),
                         ),
                       ),
                       onChanged: (value) {
@@ -74,14 +77,17 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: const InputDecoration(
                         labelText: "Password",
                         labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                        floatingLabelStyle: TextStyle(color: Colors.black),
+                        floatingLabelStyle: TextStyle(color: Color(0xFFB87A7A)),
                         prefixIcon: Icon(Icons.password_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
-                          borderSide: BorderSide(color: Colors.black, width: 2),
+                          borderSide: BorderSide(
+                            color: Color(0xFFD4C4B0),
+                            width: 2,
+                          ),
                         ),
                       ),
                       onChanged: (value) {
@@ -120,7 +126,13 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         );
                       },
-                      child: const Text("Log In"),
+                      child: const Text(
+                        "Log In",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -154,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1,
-                        color: Colors.purple,
+                        color: Color(0xFFC4B0DC),
                       ),
                     ),
                   ),

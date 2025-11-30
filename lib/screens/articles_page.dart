@@ -13,9 +13,11 @@ class NewsGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          //Image
           Container(
             height: 120,
             width: double.infinity,
@@ -28,36 +30,52 @@ class NewsGridItem extends StatelessWidget {
               },
             ),
           ),
+
+          //Text Contents
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    article.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Expanded(
-                    child: Text(
-                      article.description,
+            child: Container(
+              color: Color(0xFFF8EDEA),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      article.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: const TextStyle(
+                        fontFamily: 'Metropolis',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    article.publishedAt,
-                    style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Text(
+                        article.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Metropolis',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      article.publishedAt,
+                      style: TextStyle(
+                        fontFamily: 'Metropolis',
+                        fontWeight: FontWeight.w300,
+                        fontSize: 10,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
