@@ -149,7 +149,7 @@ class NewsApiRequester {
 
     List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
 
-    List<NewsItem> news = List.empty(growable: true);
+    // List<NewsItem> news = List.empty(growable: true);
 
     String? successMessage;
     String? failMessage;
@@ -161,7 +161,8 @@ class NewsApiRequester {
         search: search,
         onSuccess: (message, result) {
           successMessage = message;
-          news.addAll(result.news);
+          // news.addAll(result.news);
+          onSuccess(successMessage ?? "Successfully fetched news", result.news);
         },
         onFail: (message) {
           failMessage = message;
@@ -170,11 +171,9 @@ class NewsApiRequester {
     }
 
     if (failMessage != null && onFail != null) {
-      onFail(failMessage!, news);
+      // onFail(failMessage!, news);
       return;
     }
-
-    onSuccess(successMessage ?? "Successfully fetched news", news);
   }
 
   static List<int> _getSelectedSDGNumbers(List<bool> selectedSDGs) {

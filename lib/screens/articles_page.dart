@@ -116,7 +116,6 @@ class _ArticlesPageState extends State<ArticlesPage> {
           : _searchFilter!.sdgFilters,
       onSuccess: (message, result) {
         setState(() {
-          debugPrint("size of news: ${result.length}");
           for (var newsItem in result) {
             _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
           }
