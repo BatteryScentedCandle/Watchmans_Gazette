@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((duration){
+    WidgetsBinding.instance.addPostFrameCallback((duration) {
       _init();
     });
   }
@@ -24,8 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await autoLogin(
       onSuccess: () {
         setState(() {
-          Navigator.pop(context);
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) {
@@ -37,8 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
       },
       onFail: (message) {
         setState(() {
-          Navigator.pop(context);
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) {

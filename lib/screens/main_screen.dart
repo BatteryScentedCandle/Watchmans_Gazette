@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/screens/articles_page.dart';
+import 'package:watchmans_gazette/screens/user_profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -39,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildProfile() {
-    return ArticlesPage();
+    return UserProfilePage();
   }
 
   Widget _buildBody() {
