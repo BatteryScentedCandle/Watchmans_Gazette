@@ -170,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-Future<User?> loginUser({
+Future<void> loginUser({
   required String email,
   required String password,
   required Function(String) onSuccess,
@@ -180,7 +180,7 @@ Future<User?> loginUser({
     if (onFail != null) {
       onFail("Please complete all inputs before proceeding.");
     }
-    return null;
+    return;
   }
 
   try {
@@ -202,16 +202,15 @@ Future<User?> loginUser({
       if (onFail != null) {
         onFail("User does not exist");
       }
-      return null;
+      return;
     }
 
     onSuccess("Welcome to The Watchman's Gazette");
 
-    return userCredential.user;
   } catch (e) {
     if (onFail != null) {
       onFail("Unable to Log In");
     }
-    return null;
+    return;
   }
 }

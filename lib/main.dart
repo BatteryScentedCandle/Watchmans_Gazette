@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/screens/landing_page.dart';
 import 'package:watchmans_gazette/firebase_options.dart';
+import 'package:watchmans_gazette/screens/splash_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
 
 void main() async{
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'The Watchman\'s Gazette',
-      home: const LandingPage(),
+      home: const SplashScreen(),
 
       theme: ThemeData(
         fontFamily: 'Metropolis',
