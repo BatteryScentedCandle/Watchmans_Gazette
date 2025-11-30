@@ -1,8 +1,9 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:watchmans_gazette/news/sdg_keywords.dart';
+import 'package:watchmans_gazette/news/sdg_constants.dart';
 
 class ParamKeywords {
   static const ACCESS_KEY = "access_key";
@@ -62,10 +63,13 @@ class NewsApiRequester {
     required int sdg,
     required Function(String, NewsResponse) onSuccess,
     Function(String)? onFail,
+    String? search,
     int limit = 20,
   }) async {
     final String apiKey = String.fromEnvironment(NEWS_API_KEY);
-    final String keywords = _sdgKeywords(sdg);
+    final String keywords = search != null && search.isNotEmpty
+        ? "\"$search\""
+        : _sdgKeywords(sdg);
 
     Map<String, dynamic> params = {
       ParamKeywords.ACCESS_KEY: apiKey,
@@ -95,7 +99,7 @@ class NewsApiRequester {
       return;
     }
 
-    final newsItems = _extractNews(body["response"]);
+    final newsItems = _extractNews(body["response"], sdg);
     final news = NewsResponse(
       status: status,
       code: code,
@@ -106,15 +110,88 @@ class NewsApiRequester {
     onSuccess(msg, news);
   }
 
-  static List<NewsItem> _extractNews(List<dynamic> news) {
+  /// # [getNewsBatch]
+  /// Retrieve news a batch of news from fscapi. Calls [getNews] once for each
+  /// index in selectedSDGs with a value of `true`. The `index + 1` represents
+  /// the sdg number to look for.
+  ///
+  /// ## Parameters
+  /// if the item in [selectedSDGs] is true, this function will look for news
+  /// relating to sdg number `index + 1`
+  ///
+  /// [onReceived] is a callback for when the request succeeds. The first
+  /// parameter is the message of the response. The second is a list of
+  /// [NewsItem]s retreived using [getNews].
+  ///
+  /// [onFail] is a callback for when the request fails. The first parameter is
+  /// The message of the response. The second is a list of [NewsItem]s that
+  /// were successfully retrieved from preceeding successful [getNews] calls
+  /// before the failed call.
+  ///
+  /// [limit] refers to the number of results to request for for each [getNews]
+  /// call. Defaults to 20.
+  ///
+  static Future<void> getNewsBatch({
+    required List<bool> selectedSDGs,
+    required Function(String, List<NewsItem>) onReceived,
+    Function(String)? onFail,
+    Function()? onFinish,
+    String? search,
+    int limit = 5,
+  }) async {
+    bool oneSelected = false;
+    for (var selected in selectedSDGs) {
+      if (selected) {
+        oneSelected = true;
+      }
+    }
+
+    if (!oneSelected) {
+      selectedSDGs = .filled(17, true);
+    }
+
+    List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
+
+    for (var sdg in sdgNumbers) {
+      await getNews(
+        sdg: sdg,
+        limit: limit,
+        search: search,
+        onSuccess: (message, result) {
+          onReceived(message, result.news);
+        },
+        onFail: (message) {
+          if (onFail != null) {
+            onFail(message);
+          }
+        },
+      );
+    }
+
+    if (onFinish != null) {
+      onFinish();
+    }
+  }
+
+  static List<int> _getSelectedSDGNumbers(List<bool> selectedSDGs) {
+    List<int> numbers = List.empty(growable: true);
+    for (int i = 0; i < selectedSDGs.length; i++) {
+      if (selectedSDGs[i]) {
+        numbers.add(i + 1);
+      }
+    }
+    return numbers;
+  }
+
+  static List<NewsItem> _extractNews(List<dynamic> news, int sdg) {
     List<NewsItem> newsItems = .generate(news.length, (index) {
       final map = news[index];
-      return _extractNewsItem(map);
+      return _extractNewsItem(map, sdg);
     });
     return newsItems;
   }
 
-  static NewsItem _extractNewsItem(Map<String, dynamic> news) {
+  static NewsItem _extractNewsItem(Map<String, dynamic> news, int sdg) {
     NewsImage newsImage = NewsImage(
       img: news["image"]["img"],
       video: news["image"]["video"],
@@ -131,10 +208,9 @@ class NewsApiRequester {
       category: news["category"],
       country: news["country"],
       author: news["author"],
-      keywords: keywords != null
-          ? keywords.cast<String>()
-          : [],
+      keywords: keywords != null ? keywords.cast<String>() : [],
       contentApi: news["content_api"],
+      sdgNumber: sdg,
       newsImage: newsImage,
     );
   }
@@ -233,6 +309,7 @@ class NewsItem {
   String category;
   String country;
   String author;
+  int sdgNumber;
   List<String> keywords;
   NewsImage newsImage;
   String contentApi;
@@ -251,6 +328,7 @@ class NewsItem {
     required this.keywords,
     required this.newsImage,
     required this.contentApi,
+    this.sdgNumber = 0,
   });
 
   @override

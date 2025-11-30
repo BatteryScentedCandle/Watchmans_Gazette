@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'sign_up_page.dart';
 import 'login_page.dart';
-
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -10,28 +8,43 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildHeader(context),
-            ElevatedButton(
-              onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => LoginPage()), //need to fix somehow
-                // );
-              },
-              child: Text('Login'),
+
+            SizedBox(height: 30),
+            SizedBox(
+              width: 200,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                },
+
+                child: Text('Login', style: TextStyle(color: Colors.black54)),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => SignUpPage()), //need to fix somehow
-                // );
-              },
-              child: Text('Sign Up'),
+
+            SizedBox(height: 20),
+
+            SizedBox(
+              width: 200,
+              height: 50,
+
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignUpPage()),
+                  );
+                },
+                child: Text('Sign Up', style: TextStyle(color: Colors.black54)),
+              ),
             ),
           ],
         ),
@@ -45,9 +58,64 @@ Widget _buildHeader(BuildContext context) {
     padding: EdgeInsets.all(16.0),
 
     alignment: Alignment.center,
-    child: Text(
-      'The Watchman\'s Gazette',
-      style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+    child: Column(
+      children: [
+        Container(width: 300, height: 2, color: Colors.black),
+
+        SizedBox(height: 8),
+
+        Text(
+          'THE',
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 32,
+            fontWeight: FontWeight.w100,
+            letterSpacing: 8,
+            color: Colors.black,
+          ),
+        ),
+
+        Text(
+          'WATCHMEN\'S',
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 45,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            color: Colors.black,
+            height: 1.1,
+          ),
+        ),
+
+        Text(
+          'GAZETTE',
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 45,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            color: Colors.black,
+          ),
+        ),
+
+        SizedBox(height: 8),
+
+        Container(width: 300, height: 2, color: Colors.black),
+
+        SizedBox(height: 10),
+
+        Text(
+          'Delivering the latest information on the Sustainable Development Goals ',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1,
+            color: Colors.black54,
+          ),
+        ),
+      ],
     ),
   );
 }
