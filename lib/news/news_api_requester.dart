@@ -151,9 +151,12 @@ class NewsApiRequester {
     }
 
     List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
-    debugPrint("sdg's selected: $sdgNumbers");
 
+    bool failed = false;
     for (var sdg in sdgNumbers) {
+      if(failed){
+        break;
+      }
       await getNews(
         sdg: sdg,
         limit: limit,
@@ -162,6 +165,7 @@ class NewsApiRequester {
           onReceived(message, result.news);
         },
         onFail: (message) {
+          failed = true;
           if (onFail != null) {
             onFail(message);
           }

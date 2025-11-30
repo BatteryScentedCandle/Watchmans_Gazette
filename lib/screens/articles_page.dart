@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
@@ -98,6 +100,8 @@ class _ArticlesPageState extends State<ArticlesPage> {
   bool _loadingNews = false;
   SearchFilter? _searchFilter;
 
+  StreamController<List<NewsItem>> _newsStream = StreamController();
+
   @override
   void initState() {
     super.initState();
@@ -106,12 +110,28 @@ class _ArticlesPageState extends State<ArticlesPage> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _newsStream.close();
+  }
+
+  void _addNews(List<NewsItem> news) {
+    for (var newsItem in news) {
+      _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
+    }
+  }
+
   void _loadMoreNews() async {
     if (_loadingNews) {
       return;
     }
+    if (_newsStream.hasListener) {
+      return;
+    }
     setState(() {
       _loadingNews = true;
+      _newsStream.stream.listen(_addNews);
     });
     await NewsApiRequester.getNewsBatch(
       search: _searchFilter?.search,
@@ -120,18 +140,33 @@ class _ArticlesPageState extends State<ArticlesPage> {
           : _searchFilter!.sdgFilters,
       onReceived: (message, result) {
         setState(() {
-          for (var newsItem in result) {
-            _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
-          }
+          _newsStream.add(result);
           _loadingNews = false;
         });
       },
-      onFinish: () {
+      onFail: (message) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      },
+      onFinish: () async {
         debugPrint("done loading");
+        await _newsStream.close();
         setState(() {
           _loadingNews = false;
         });
       },
+    );
+  }
+
+  Future<dynamic> _showSearchScreen() async {
+    return await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return SearchScreen(existingFilter: _searchFilter);
+        },
+      ),
     );
   }
 
@@ -141,24 +176,15 @@ class _ArticlesPageState extends State<ArticlesPage> {
       actions: [
         IconButton(
           onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return SearchScreen(existingFilter: _searchFilter);
-                },
-              ),
-            );
+            await _newsStream.close();
+            final result = await _showSearchScreen();
             if (!context.mounted) return;
             if (result is SearchFilter?) {
-              WidgetsBinding.instance.addPostFrameCallback((duration) {
-                setState(() {
-                  _news.clear();
-                });
-                setState(() {
-                  _searchFilter = result;
-                  _loadMoreNews();
-                });
+              setState(() {
+                _newsStream = StreamController();
+                _news.clear();
+                _searchFilter = result;
+                _loadMoreNews();
               });
             }
           },
