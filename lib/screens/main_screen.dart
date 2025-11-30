@@ -9,7 +9,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String _appBarTitle = "";
+  String _appBarTitle = "News Articles";
   int _curFragment = 0;
 
   AppBar _buildAppBar() {

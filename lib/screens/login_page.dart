@@ -19,159 +19,150 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    const SizedBox(height: 100),
-                    const Text(
-                      "Welcome Back to \nThe Watchman's Gazette",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 1,
-                        color: Colors.black,
-                        height: 1.5,
-                      ),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  const SizedBox(height: 100),
+                  const Text(
+                    "Welcome Back to \nThe Watchman's Gazette",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 1,
+                      color: Colors.black,
+                      height: 1.5,
                     ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 350,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                          floatingLabelStyle: TextStyle(color: Colors.black),
-                          prefixIcon: Icon(Icons.email_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+              Column(
+                children: <Widget>[
+                  SizedBox(
+                    width: 350,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        labelStyle: TextStyle(fontWeight: FontWeight.normal),
+                        floatingLabelStyle: TextStyle(color: Colors.black),
+                        prefixIcon: Icon(Icons.email_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          borderSide: BorderSide(color: Colors.black, width: 2),
+                        ),
+                      ),
                       onChanged: (value) {
                         setState(() {
                           email = value;
                         });
                       },
                     ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: 350,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          labelText: "Password",
-                          labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                          floatingLabelStyle: TextStyle(color: Colors.black),
-                          prefixIcon: Icon(Icons.password_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2,
-                            ),
-                          ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: 350,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: "Password",
+                        labelStyle: TextStyle(fontWeight: FontWeight.normal),
+                        floatingLabelStyle: TextStyle(color: Colors.black),
+                        prefixIcon: Icon(Icons.password_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          borderSide: BorderSide(color: Colors.black, width: 2),
+                        ),
+                      ),
                       onChanged: (value) {
                         setState(() {
                           password = value;
                         });
                       },
                     ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: 200,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await loginUser(
+                          email: email,
+                          password: password,
+                          onSuccess: (message) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainScreen(),
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                          onFail: (message) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(message)));
+                          },
+                        );
+                      },
+                      child: const Text("Log In"),
                     ),
-                    const SizedBox(height: 30),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
 
-                    SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await loginUser(
-                            email: email,
-                            password: password,
-                            onSuccess: (message) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainScreen(),
-                                ),
-                              );
-
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(message)));
-                            },
-                            onFail: (message) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(message)));
-                            },
-                          );
-                        },
-                        child: const Text("Log In"),
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    "Don't have an account?",
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      "Don't have an account?",
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                      );
+                    },
+                    child: const Text(
+                      "Sign Up",
                       style: TextStyle(
                         fontFamily: 'Metropolis',
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: 1,
-                        color: Colors.black54,
+                        color: Colors.purple,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignUpPage()),
-                        );
-                      },
-                      child: const Text(
-                        "Sign Up",
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
-                          color: Colors.purple,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
