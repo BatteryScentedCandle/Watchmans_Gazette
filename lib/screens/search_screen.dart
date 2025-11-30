@@ -4,7 +4,8 @@ import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final SearchFilter? existingFilter;
+  const SearchScreen({super.key, this.existingFilter});
 
   @override
   State<StatefulWidget> createState() => _SearchScreenState();
@@ -13,6 +14,18 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   static const double _inputFontSize = 16;
   final List<bool> _sdgChoices = .filled(17, false);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingFilter != null) {
+      setState(() {
+        for (int i = 0; i < widget.existingFilter!.sdgFilters.length; i++) {
+          _sdgChoices[i] = widget.existingFilter!.sdgFilters[i];
+        }
+      });
+    }
+  }
 
   AppBar _buildAppBar() {
     return AppBar(

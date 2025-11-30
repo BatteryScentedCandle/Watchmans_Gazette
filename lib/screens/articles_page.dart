@@ -145,7 +145,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return SearchScreen();
+                  return SearchScreen(existingFilter: _searchFilter);
                 },
               ),
             );
