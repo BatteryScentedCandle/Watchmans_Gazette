@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:watchmans_gazette/screens/articles_page.dart';
+import 'package:watchmans_gazette/screens/landing_page.dart';
 import 'package:watchmans_gazette/screens/login_page.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -121,7 +121,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ArticlesPage(),
+                                builder: (context) => LandingPage(),
                               ),
                             );
                           },

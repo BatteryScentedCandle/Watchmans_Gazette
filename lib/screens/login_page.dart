@@ -108,6 +108,8 @@ class _LoginPageState extends State<LoginPage> {
                           email: email,
                           password: password,
                           onSuccess: (message) {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
