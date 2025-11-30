@@ -101,14 +101,18 @@ class _ArticlesPageState extends State<ArticlesPage> {
   @override
   void initState() {
     super.initState();
-    _loadMoreNews();
+    WidgetsBinding.instance.addPostFrameCallback((duration) {
+      _loadMoreNews();
+    });
   }
 
   void _loadMoreNews() async {
     if (_loadingNews) {
       return;
     }
-    _loadingNews = true;
+    setState(() {
+      _loadingNews = true;
+    });
     await NewsApiRequester.getNewsBatch(
       search: _searchFilter?.search,
       selectedSDGs: _searchFilter == null
@@ -145,11 +149,16 @@ class _ArticlesPageState extends State<ArticlesPage> {
                 },
               ),
             );
-            if (result is SearchFilter) {
-              setState(() {
-                _searchFilter = result;
-                _news.clear();
-                _loadMoreNews();
+            if (!context.mounted) return;
+            if (result is SearchFilter?) {
+              WidgetsBinding.instance.addPostFrameCallback((duration) {
+                setState(() {
+                  _news.clear();
+                });
+                setState(() {
+                  _searchFilter = result;
+                  _loadMoreNews();
+                });
               });
             }
           },

@@ -151,6 +151,7 @@ class NewsApiRequester {
     }
 
     List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
+    debugPrint("sdg's selected: $sdgNumbers");
 
     for (var sdg in sdgNumbers) {
       await getNews(
