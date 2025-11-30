@@ -11,8 +11,7 @@ class NewsGridItem extends StatelessWidget {
 
   const NewsGridItem({super.key, required this.article});
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCard() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -20,21 +19,24 @@ class NewsGridItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //Image
-          Container(
-            height: 120,
-            width: double.infinity,
-            color: Colors.grey[300],
-            child: Image.network(
-              article.newsImage.img,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.article, color: Colors.grey);
-              },
+          Expanded(
+            flex: 6,
+            child: Container(
+              width: double.infinity,
+              color: Colors.grey[300],
+              child: Image.network(
+                article.newsImage.img,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.article, color: Colors.grey);
+                },
+              ),
             ),
           ),
 
           //Text Contents
           Expanded(
+            flex: 4,
             child: Container(
               color: Color(0xFFF8EDEA),
               child: Padding(
@@ -85,6 +87,21 @@ class NewsGridItem extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return LongPressDraggable<NewsItem>(
+      data: article,
+      feedback: RotationTransition(
+        turns: AlwaysStoppedAnimation(-15 / 360),
+        child: Opacity(
+          opacity: 0.8,
+          child: SizedBox(height: 200, width: 160, child: _buildCard()),
+        ),
+      ),
+      child: _buildCard(),
+    );
+  }
 }
 
 class ArticlesPage extends StatefulWidget {
@@ -94,7 +111,8 @@ class ArticlesPage extends StatefulWidget {
   State<ArticlesPage> createState() => _ArticlesPageState();
 }
 
-class _ArticlesPageState extends State<ArticlesPage> {
+class _ArticlesPageState extends State<ArticlesPage>
+    with TickerProviderStateMixin {
   final Map<int, NewsItem> _news = Map.identity();
   final ScrollController _scrollController = ScrollController();
   bool _loadingNews = false;
