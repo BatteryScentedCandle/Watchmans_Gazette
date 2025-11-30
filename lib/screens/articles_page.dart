@@ -131,10 +131,13 @@ class _ArticlesPageState extends State<ArticlesPage> {
     }
     setState(() {
       _loadingNews = true;
-      _newsStream.stream.listen(_addNews);
+      if (!_newsStream.hasListener) {
+        _newsStream.stream.listen(_addNews);
+      }
     });
     await NewsApiRequester.getNewsBatch(
       search: _searchFilter?.search,
+      loadedIds: _news.keys.toList(),
       selectedSDGs: _searchFilter == null
           ? List.filled(17, true)
           : _searchFilter!.sdgFilters,
@@ -257,6 +260,8 @@ class _ArticlesPageState extends State<ArticlesPage> {
             if (_scrollController.position.userScrollDirection == .forward) {
               return false;
             }
+            _newsStream.close();
+            _newsStream = StreamController();
             _loadMoreNews();
             return true;
           },
