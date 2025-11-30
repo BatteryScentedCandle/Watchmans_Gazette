@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/screens/search_screen.dart';
+import 'package:watchmans_gazette/theme/app_color.dart';
 
 class NewsGridItem extends StatelessWidget {
   final NewsItem article;
@@ -82,31 +83,36 @@ class _ArticlesPageState extends State<ArticlesPage> {
   @override
   void initState() {
     super.initState();
-    _loadMoreNews(4);
+    _loadMoreNews();
   }
 
-  void _loadMoreNews(int sdg) async {
+  void _loadMoreNews() async {
     if (_loadingNews) {
       return;
     }
     _loadingNews = true;
-    await NewsApiRequester.getNews(
+    await NewsApiRequester.getNewsBatch(
       search: _searchFilter?.search,
-      sdg: sdg,
-      limit: 20,
+      selectedSDGs: _searchFilter == null
+          ? List.filled(17, true)
+          : _searchFilter!.sdgFilters,
       onSuccess: (message, result) {
         setState(() {
-          debugPrint("size of news: ${result.news.length}");
-          for (var newsItem in result.news) {
+          debugPrint("size of news: ${result.length}");
+          for (var newsItem in result) {
             _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
           }
           _loadingNews = false;
         });
       },
-      onFail: (message) {
+      onFail: (message, result) {
+        for (var newsItem in result) {
+          _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
+        }
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(message)));
+        _loadingNews = false;
       },
     );
   }
@@ -129,7 +135,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
               setState(() {
                 _searchFilter = result;
                 _news.clear();
-                _loadMoreNews(4);
+                _loadMoreNews();
               });
             }
           },
@@ -150,30 +156,37 @@ class _ArticlesPageState extends State<ArticlesPage> {
             if (_scrollController.position.userScrollDirection == .forward) {
               return false;
             }
-            _loadMoreNews(5);
+            _loadMoreNews();
             return true;
           },
-          child: RefreshIndicator(
-            onRefresh: () async {
-              setState(() {
-                _news.clear();
-              });
-              _loadMoreNews(4);
-            },
-            child: GridView.builder(
-              controller: _scrollController,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 0.8,
-              ),
-              itemCount: _news.length,
-              itemBuilder: (context, index) {
-                return NewsGridItem(article: _news.values.elementAt(index));
-              },
-            ),
-          ),
+          child: _news.isEmpty
+              ? Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _news.clear();
+                    });
+                    _loadMoreNews();
+                  },
+                  child: GridView.builder(
+                    controller: _scrollController,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 0.8,
+                        ),
+                    itemCount: _news.length,
+                    itemBuilder: (context, index) {
+                      return NewsGridItem(
+                        article: _news.values.elementAt(index),
+                      );
+                    },
+                  ),
+                ),
         ),
       ),
     );
