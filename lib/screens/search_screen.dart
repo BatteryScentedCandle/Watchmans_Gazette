@@ -13,6 +13,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   static const double _inputFontSize = 16;
+  final TextEditingController _searchController = TextEditingController();
   final List<bool> _sdgChoices = .filled(17, false);
 
   @override
@@ -31,6 +32,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return AppBar(
       title: TextField(
         maxLines: 1,
+        controller: _searchController,
         onSubmitted: (input) => _submitSearch(input: input),
         style: TextStyle(color: AppColors.background, fontSize: _inputFontSize),
         cursorColor: AppColors.background,
@@ -45,12 +47,16 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
       actions: [
-        IconButton(onPressed: () => _submitSearch(), icon: Icon(Icons.search)),
+        IconButton(
+          onPressed: () => _submitSearch(input: _searchController.text),
+          icon: Icon(Icons.search),
+        ),
       ],
     );
   }
 
   void _submitSearch({String? input}) {
+    if (input != null && input.isEmpty) input = null;
     SearchFilter filter = SearchFilter(search: input, sdgFilters: _sdgChoices);
     Navigator.pop(context, filter);
   }
