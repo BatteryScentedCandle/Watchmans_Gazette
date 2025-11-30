@@ -21,24 +21,45 @@ class _UserProfilePage extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Account Settings")),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildHeader(context),
+
+          //Change Password
           SizedBox(
-            width: 100,
+            width: 250,
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
                 _changePasswordField(context);
               },
-              child: Text(
-                'Change Password',
-                style: TextStyle(color: Colors.black),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.password_rounded),
+                  SizedBox(width: 8),
+                  Text(
+                    'Change Password',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+
+          const SizedBox(height: 20),
+
+          //Sign Out
           SizedBox(
-            width: 100,
+            width: 250,
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
@@ -48,11 +69,31 @@ class _UserProfilePage extends State<UserProfilePage> {
                   MaterialPageRoute(builder: (context) => LandingPage()),
                 );
               },
-              child: Text('Sign Out', style: TextStyle(color: Colors.black)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.exit_to_app_rounded),
+                  SizedBox(width: 8),
+                  Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+
+          const SizedBox(height: 20),
+
+          //Delete Account
           SizedBox(
-            width: 100,
+            width: 250,
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
@@ -63,9 +104,22 @@ class _UserProfilePage extends State<UserProfilePage> {
                   MaterialPageRoute(builder: (context) => LandingPage()),
                 );
               },
-              child: Text(
-                'Delete Account',
-                style: TextStyle(color: Colors.black),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.remove_circle_outline_rounded),
+                  SizedBox(width: 8),
+                  Text(
+                    'Delete Accounts',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -84,25 +138,38 @@ Widget _buildHeader(BuildContext context) {
     alignment: Alignment.center,
     child: Column(
       children: [
-        Container(width: 300, height: 2, color: Colors.black),
+        Text(
+          'Current User:',
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1,
+            color: Colors.black54,
+          ),
+        ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         Text(
           '${user?.email}',
           style: TextStyle(
             fontFamily: 'Metropolis',
-            fontSize: 32,
+            fontSize: 25,
             fontWeight: FontWeight.w100,
             letterSpacing: 8,
             color: Colors.black,
           ),
         ),
+
+        const SizedBox(height: 15),
       ],
     ),
   );
 }
 
+
+//Password Changer
 Future<void> _changePasswordField(context) async {
   String currentPassword = '';
   String newPassword = '';
@@ -111,39 +178,62 @@ Future<void> _changePasswordField(context) async {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Change Password'),
+        backgroundColor: Color(0xFFF8EDEA),
+        title: Text('Change Password',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 20,
+            fontWeight: FontWeight.w100,
+            letterSpacing: 2,
+            color: Colors.black,
+          ),),
+
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TextField(
               obscureText: true,
-              decoration: InputDecoration(hintText: 'Current Password'),
+              decoration: InputDecoration(
+                  labelText: "Password",
+                  labelStyle: TextStyle(fontWeight: FontWeight.normal)
+              ),
               onChanged: (value) {
                 currentPassword = value;
               },
             ),
+
+            const SizedBox(height: 8),
+
             TextField(
               obscureText: true,
-              decoration: InputDecoration(hintText: 'New Password'),
+              decoration: InputDecoration( labelText: "New Password",
+                  labelStyle: TextStyle(fontWeight: FontWeight.normal)),
               onChanged: (value) {
                 newPassword = value;
               },
             ),
           ],
         ),
+
         actions: <Widget>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await _changePassword(currentPassword, newPassword, context);
-              Navigator.of(context).pop();
-            },
-            child: Text('Change'),
+          Row(
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () async {
+                  await _changePassword(currentPassword, newPassword, context);
+                  Navigator.of(context).pop();
+                },
+                child: Text('Change'),
+              ),
+              Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel'),
+              ),
+            ],
           ),
         ],
       );
