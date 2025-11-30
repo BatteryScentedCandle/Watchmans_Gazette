@@ -67,7 +67,9 @@ class NewsApiRequester {
     int limit = 20,
   }) async {
     final String apiKey = String.fromEnvironment(NEWS_API_KEY);
-    final String keywords = search != null ? "\"$search\"" : _sdgKeywords(sdg);
+    final String keywords = search != null && search.isNotEmpty
+        ? "\"$search\""
+        : _sdgKeywords(sdg);
 
     Map<String, dynamic> params = {
       ParamKeywords.ACCESS_KEY: apiKey,
@@ -117,28 +119,29 @@ class NewsApiRequester {
   /// if the item in [selectedSDGs] is true, this function will look for news
   /// relating to sdg number `index + 1`
   ///
-  /// [onSuccess] is a callback for when the request succeeds. The first
-  /// parameter is the message of the response. The second is a list of 
+  /// [onReceived] is a callback for when the request succeeds. The first
+  /// parameter is the message of the response. The second is a list of
   /// [NewsItem]s retreived using [getNews].
   ///
   /// [onFail] is a callback for when the request fails. The first parameter is
   /// The message of the response. The second is a list of [NewsItem]s that
-  /// were successfully retrieved from preceeding successful [getNews] calls 
+  /// were successfully retrieved from preceeding successful [getNews] calls
   /// before the failed call.
   ///
-  /// [limit] refers to the number of results to request for for each [getNews] 
+  /// [limit] refers to the number of results to request for for each [getNews]
   /// call. Defaults to 20.
   ///
   static Future<void> getNewsBatch({
     required List<bool> selectedSDGs,
-    required Function(String, List<NewsItem>) onSuccess,
-    Function(String, List<NewsItem>)? onFail,
+    required Function(String, List<NewsItem>) onReceived,
+    Function(String)? onFail,
+    Function()? onFinish,
     String? search,
     int limit = 5,
   }) async {
     bool oneSelected = false;
     for (var selected in selectedSDGs) {
-      if(selected) {
+      if (selected) {
         oneSelected = true;
       }
     }
@@ -149,30 +152,24 @@ class NewsApiRequester {
 
     List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
 
-    // List<NewsItem> news = List.empty(growable: true);
-
-    String? successMessage;
-    String? failMessage;
     for (var sdg in sdgNumbers) {
-      if (failMessage != null) break;
       await getNews(
         sdg: sdg,
         limit: limit,
         search: search,
         onSuccess: (message, result) {
-          successMessage = message;
-          // news.addAll(result.news);
-          onSuccess(successMessage ?? "Successfully fetched news", result.news);
+          onReceived(message, result.news);
         },
         onFail: (message) {
-          failMessage = message;
+          if (onFail != null) {
+            onFail(message);
+          }
         },
       );
     }
 
-    if (failMessage != null && onFail != null) {
-      // onFail(failMessage!, news);
-      return;
+    if (onFinish != null) {
+      onFinish();
     }
   }
 
@@ -331,7 +328,7 @@ class NewsItem {
     required this.keywords,
     required this.newsImage,
     required this.contentApi,
-    this.sdgNumber = 0
+    this.sdgNumber = 0,
   });
 
   @override

@@ -114,7 +114,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
       selectedSDGs: _searchFilter == null
           ? List.filled(17, true)
           : _searchFilter!.sdgFilters,
-      onSuccess: (message, result) {
+      onReceived: (message, result) {
         setState(() {
           for (var newsItem in result) {
             _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
@@ -122,14 +122,11 @@ class _ArticlesPageState extends State<ArticlesPage> {
           _loadingNews = false;
         });
       },
-      onFail: (message, result) {
-        for (var newsItem in result) {
-          _news.putIfAbsent(int.parse(newsItem.id), () => newsItem);
-        }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-        _loadingNews = false;
+      onFinish: () {
+        debugPrint("done loading");
+        setState(() {
+          _loadingNews = false;
+        });
       },
     );
   }
@@ -162,6 +159,48 @@ class _ArticlesPageState extends State<ArticlesPage> {
     );
   }
 
+  Widget _buildLoadingBody() {
+    return Center(child: CircularProgressIndicator(color: AppColors.primary));
+  }
+
+  Widget _buildNoResultsBody() {
+    return Center(child: Text("No Results"));
+  }
+
+  Widget _buildBodyWidget() {
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          _news.clear();
+        });
+        _loadMoreNews();
+      },
+      child: GridView.builder(
+        controller: _scrollController,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: _news.length,
+        itemBuilder: (context, index) {
+          return NewsGridItem(article: _news.values.elementAt(index));
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_news.isEmpty) {
+      if (_loadingNews) {
+        return _buildLoadingBody();
+      }
+      return _buildNoResultsBody();
+    }
+    return _buildBodyWidget();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,34 +215,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
             _loadMoreNews();
             return true;
           },
-          child: _news.isEmpty
-              ? Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    setState(() {
-                      _news.clear();
-                    });
-                    _loadMoreNews();
-                  },
-                  child: GridView.builder(
-                    controller: _scrollController,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          childAspectRatio: 0.8,
-                        ),
-                    itemCount: _news.length,
-                    itemBuilder: (context, index) {
-                      return NewsGridItem(
-                        article: _news.values.elementAt(index),
-                      );
-                    },
-                  ),
-                ),
+          child: _buildBody(),
         ),
       ),
     );
