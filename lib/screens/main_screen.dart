@@ -16,6 +16,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _curFragment = 0;
   bool _hovered = false;
+  final ScrollController _articleScrollController = ScrollController();
 
   final ValueNotifier<bool> _dragNotifier = ValueNotifier(false);
 
@@ -100,6 +101,13 @@ class _MainScreenState extends State<MainScreen> {
       ],
       onDestinationSelected: (index) {
         setState(() {
+          if (index == 0) {
+            _articleScrollController.animateTo(
+              0,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
+            );
+          }
           _curFragment = index;
         });
       },
@@ -107,7 +115,10 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildHome() {
-    return ArticlesPage(dragNotifier: _dragNotifier);
+    return ArticlesPage(
+      dragNotifier: _dragNotifier,
+      scrollController: _articleScrollController,
+    );
   }
 
   Widget _buildBookmarks() {

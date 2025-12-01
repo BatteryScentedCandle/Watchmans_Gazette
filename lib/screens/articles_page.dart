@@ -6,12 +6,17 @@ import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/screens/content_view_page.dart';
 import 'package:watchmans_gazette/screens/search_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
+import 'package:watchmans_gazette/theme/sdg_colors.dart';
 
 class NewsGridItem extends StatelessWidget {
   final ValueNotifier<bool> dragNotifier;
   final NewsItem article;
 
-  const NewsGridItem({super.key, required this.article, required this.dragNotifier});
+  const NewsGridItem({
+    super.key,
+    required this.article,
+    required this.dragNotifier,
+  });
 
   Widget _buildCard(BuildContext context) {
     return Card(
@@ -42,20 +47,7 @@ class NewsGridItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //Image
-            Expanded(
-              flex: 6,
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: Image.network(
-                  article.newsImage.img,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.article, color: Colors.grey);
-                  },
-                ),
-              ),
-            ),
+            Expanded(flex: 6, child: _ArticleTag()),
 
             //Text Contents
             Expanded(
@@ -112,6 +104,54 @@ class NewsGridItem extends StatelessWidget {
     );
   }
 
+  Widget _ArticleTag() {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          color: Colors.grey[300],
+          child: Image.network(
+            article.newsImage.img,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.article, color: Colors.grey, size: 40);
+            },
+          ),
+        ),
+        if (article.sdgNumber != null &&
+            SdgColors.colors.containsKey(article.sdgNumber))
+          Positioned(
+            bottom: 8,
+            right: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: SdgColors.colors[article.sdgNumber],
+                borderRadius: BorderRadius.circular(4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Text(
+                'SDG ${article.sdgNumber}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Metropolis',
+                  height: 1.0,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LongPressDraggable<NewsItem>(
@@ -146,7 +186,12 @@ class NewsGridItem extends StatelessWidget {
 
 class ArticlesPage extends StatefulWidget {
   final ValueNotifier<bool> dragNotifier;
-  const ArticlesPage({super.key, required this.dragNotifier});
+  final ScrollController scrollController;
+  const ArticlesPage({
+    super.key,
+    required this.dragNotifier,
+    required this.scrollController,
+  });
 
   @override
   State<ArticlesPage> createState() => _ArticlesPageState();
@@ -155,7 +200,6 @@ class ArticlesPage extends StatefulWidget {
 class _ArticlesPageState extends State<ArticlesPage>
     with TickerProviderStateMixin {
   final Map<int, NewsItem> _news = Map.identity();
-  final ScrollController _scrollController = ScrollController();
   bool _loadingNews = false;
   SearchFilter? _searchFilter;
 
@@ -283,7 +327,7 @@ class _ArticlesPageState extends State<ArticlesPage>
         _loadMoreNews();
       },
       child: GridView.builder(
-        controller: _scrollController,
+        controller: widget.scrollController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 8,
@@ -292,7 +336,10 @@ class _ArticlesPageState extends State<ArticlesPage>
         ),
         itemCount: _news.length,
         itemBuilder: (context, index) {
-          return NewsGridItem(article: _news.values.elementAt(index), dragNotifier: widget.dragNotifier,);
+          return NewsGridItem(
+            article: _news.values.elementAt(index),
+            dragNotifier: widget.dragNotifier,
+          );
         },
       ),
     );
@@ -313,10 +360,10 @@ class _ArticlesPageState extends State<ArticlesPage>
     return Scaffold(
       appBar: _buildAppBar(),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0),
         child: NotificationListener<OverscrollIndicatorNotification>(
           onNotification: (scroll) {
-            if (_scrollController.position.userScrollDirection == .forward) {
+            if (widget.scrollController.position.userScrollDirection == .forward) {
               return false;
             }
             _newsStream.close();
