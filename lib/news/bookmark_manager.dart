@@ -162,7 +162,12 @@ class BookmarkManager {
         newsItem: newsItem,
       );
     });
-    bookmarks.sort((a, b) => a.pos - b.pos);
+    bookmarks.sort((a, b) {
+      if(a.dateAdded.isBefore(b.dateAdded)){
+        return -1;
+      }
+      return 1;
+    });
 
     onSuccess(bookmarks);
   }
