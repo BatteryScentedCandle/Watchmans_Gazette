@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/screens/landing_page.dart';
-import 'package:watchmans_gazette/screens/login_page.dart';
 import 'package:watchmans_gazette/screens/main_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
 

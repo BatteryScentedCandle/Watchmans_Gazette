@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
+import 'package:watchmans_gazette/screens/content_view_page.dart';
 import 'package:watchmans_gazette/screens/search_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
 
@@ -11,78 +12,117 @@ class NewsGridItem extends StatelessWidget {
 
   const NewsGridItem({super.key, required this.article});
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCard(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //Image
-          Container(
-            height: 120,
-            width: double.infinity,
-            color: Colors.grey[300],
-            child: Image.network(
-              article.newsImage.img,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.article, color: Colors.grey);
-              },
-            ),
-          ),
-
-          //Text Contents
-          Expanded(
-            child: Container(
-              color: Color(0xFFF8EDEA),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      article.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: 'Metropolis',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: Text(
-                        article.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      article.publishedAt,
-                      style: TextStyle(
-                        fontFamily: 'Metropolis',
-                        fontWeight: FontWeight.w300,
-                        fontSize: 10,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
+      child: GestureDetector(
+        onTapUp: (details) async {
+          await NewsApiRequester.getNewsContent(
+            newsItem: article,
+            onSuccess: (message, result) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ContentViewPage(newsContent: result.content);
+                  },
+                ),
+              );
+            },
+            onFail: (message) {
+              ScaffoldMessenger.of(context)
+                ..clearSnackBars()
+                ..showSnackBar(SnackBar(content: Text(message)));
+            },
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //Image
+            Expanded(
+              flex: 6,
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: Image.network(
+                  article.newsImage.img,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.article, color: Colors.grey);
+                  },
                 ),
               ),
             ),
-          ),
-        ],
+
+            //Text Contents
+            Expanded(
+              flex: 4,
+              child: Container(
+                color: Color(0xFFF8EDEA),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        article.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Metropolis',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Expanded(
+                        child: Text(
+                          article.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        article.publishedAt,
+                        style: TextStyle(
+                          fontFamily: 'Metropolis',
+                          fontWeight: FontWeight.w300,
+                          fontSize: 10,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LongPressDraggable<NewsItem>(
+      data: article,
+      feedback: RotationTransition(
+        turns: AlwaysStoppedAnimation(-15 / 360),
+        child: Opacity(
+          opacity: 0.8,
+          child: SizedBox(height: 200, width: 160, child: _buildCard(context)),
+        ),
+      ),
+      child: _buildCard(context),
     );
   }
 }
@@ -94,7 +134,8 @@ class ArticlesPage extends StatefulWidget {
   State<ArticlesPage> createState() => _ArticlesPageState();
 }
 
-class _ArticlesPageState extends State<ArticlesPage> {
+class _ArticlesPageState extends State<ArticlesPage>
+    with TickerProviderStateMixin {
   final Map<int, NewsItem> _news = Map.identity();
   final ScrollController _scrollController = ScrollController();
   bool _loadingNews = false;

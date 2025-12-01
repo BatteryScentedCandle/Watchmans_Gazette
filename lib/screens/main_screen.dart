@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/screens/articles_page.dart';
 import 'package:watchmans_gazette/screens/user_profile_page.dart';
+import 'package:watchmans_gazette/theme/app_color.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,12 +14,49 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _curFragment = 0;
 
+  NavigationDestination _buildBookmarksNav() {
+    return NavigationDestination(
+      icon: Icon(Icons.bookmarks),
+      label: "Bookmarks",
+    );
+  }
+
+  bool _hovered = false;
+
   Widget _buildNavBar() {
     return NavigationBar(
       selectedIndex: _curFragment,
       destinations: [
         NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-        NavigationDestination(icon: Icon(Icons.bookmarks), label: "Bookmarks"),
+        DragTarget<NewsItem>(
+          onAcceptWithDetails: (details) {
+            setState(() {});
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(SnackBar(content: Text(details.data.title)));
+          },
+          builder: (context, candidates, rejected) {
+            _hovered = candidates.isNotEmpty;
+            return Stack(
+              children: [
+                Center(
+                  child: AnimatedContainer(
+                    height: _hovered ? 150 : 0,
+                    width: _hovered ? 150 : 0,
+                    alignment: .center,
+                    duration: Duration(milliseconds: 250),
+                    curve: Curves.fastOutSlowIn,
+                    decoration: BoxDecoration(
+                      color: _hovered ? AppColors.primary : Colors.transparent,
+                      borderRadius: .all(.circular(50)),
+                    ),
+                  ),
+                ),
+                _buildBookmarksNav(),
+              ],
+            );
+          },
+        ),
         NavigationDestination(
           icon: Icon(Icons.account_circle),
           label: "Account",
@@ -58,9 +97,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: _buildNavBar(),
-      body: _buildBody(),
-    );
+    return Scaffold(bottomNavigationBar: _buildNavBar(), body: _buildBody());
   }
 }
