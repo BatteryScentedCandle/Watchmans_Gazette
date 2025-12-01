@@ -42,7 +42,6 @@ class _BookmarksPageState extends State<BookmarksPage> {
     return Dismissible(
       key: Key(newsItem.id),
       direction: .horizontal,
-      background: Container(color: AppColors.error,),
       onDismissed: (direction){
         _removeBookmark(index);
       },
