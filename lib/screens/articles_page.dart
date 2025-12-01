@@ -6,6 +6,7 @@ import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/screens/content_view_page.dart';
 import 'package:watchmans_gazette/screens/search_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
+import 'package:watchmans_gazette/theme/sdg_colors.dart';
 
 class NewsGridItem extends StatelessWidget {
   final ValueNotifier<bool> dragNotifier;
@@ -42,20 +43,7 @@ class NewsGridItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //Image
-            Expanded(
-              flex: 6,
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: Image.network(
-                  article.newsImage.img,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.article, color: Colors.grey);
-                  },
-                ),
-              ),
-            ),
+            Expanded(flex: 6, child: _ArticleTag()),
 
             //Text Contents
             Expanded(
@@ -109,6 +97,54 @@ class NewsGridItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _ArticleTag() {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          color: Colors.grey[300],
+          child: Image.network(
+            article.newsImage.img,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.article, color: Colors.grey, size: 40);
+            },
+          ),
+        ),
+        if (article.sdgNumber != null &&
+            SdgColors.colors.containsKey(article.sdgNumber))
+          Positioned(
+            bottom: 8,
+            right: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: SdgColors.colors[article.sdgNumber],
+                borderRadius: BorderRadius.circular(4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Text(
+                'SDG ${article.sdgNumber}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Metropolis',
+                  height: 1.0,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
