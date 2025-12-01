@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/news/bookmark_manager.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/screens/articles_page.dart';
+import 'package:watchmans_gazette/screens/bookmarks_page.dart';
 import 'package:watchmans_gazette/screens/user_profile_page.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
 
@@ -29,11 +31,21 @@ class _MainScreenState extends State<MainScreen> {
       destinations: [
         NavigationDestination(icon: Icon(Icons.home), label: "Home"),
         DragTarget<NewsItem>(
-          onAcceptWithDetails: (details) {
-            setState(() {});
-            ScaffoldMessenger.of(context)
-              ..clearSnackBars()
-              ..showSnackBar(SnackBar(content: Text(details.data.title)));
+          onAcceptWithDetails: (details) async {
+            await BookmarkManager.addBookmark(
+              newsItem: details.data,
+              onSuccess: (bookmark) {
+                ScaffoldMessenger.of(context)
+                  ..clearSnackBars()
+                  ..showSnackBar(SnackBar(content: Text("Added to bookmarks!")));
+              },
+              onFail: (message) {
+                ScaffoldMessenger.of(context)
+                  ..clearSnackBars()
+                  ..showSnackBar(SnackBar(content: Text(message)));
+              }
+              ,
+            );
           },
           builder: (context, candidates, rejected) {
             _hovered = candidates.isNotEmpty;
@@ -75,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildBookmarks() {
-    return ArticlesPage();
+    return BookmarksPage();
   }
 
   Widget _buildProfile() {

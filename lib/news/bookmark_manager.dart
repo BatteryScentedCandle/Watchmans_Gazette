@@ -107,7 +107,6 @@ class BookmarkManager {
   }
 
   static Future<void> getBookmarks({
-    required BookmarkItem bookmark,
     required Function(List<BookmarkItem>) onSuccess,
     Function(String)? onFail,
   }) async {
@@ -137,28 +136,28 @@ class BookmarkManager {
     List<BookmarkItem> bookmarks = List.generate(docs.length, (index) {
       final doc = docs.elementAt(index);
       final newsImage = NewsImage(
-        img: doc.get(FieldPath(["newsImage", "img"])),
-        video: doc.get(FieldPath(["newsImage", "video"])),
+        img: doc.get(FieldPath(["news", "newsImage", "img"])),
+        video: doc.get(FieldPath(["news", "newsImage", "video"])),
       );
       final newsItem = NewsItem(
-        id: doc.get("id"),
-        title: doc.get("title"),
-        description: doc.get("description"),
-        language: doc.get("language"),
-        publishedAt: doc.get("publishedAt"),
-        source: doc.get("source"),
-        site: doc.get("site"),
-        category: doc.get("category"),
-        country: doc.get("country"),
-        author: doc.get("author"),
-        keywords: doc.get("keywords"),
-        contentApi: doc.get("contentApi"),
+        id: doc.get(FieldPath(["news" ,"id"])),
+        title: doc.get(FieldPath(["news" ,"title"])),
+        description: doc.get(FieldPath(["news" ,"description"])),
+        language: doc.get(FieldPath(["news" ,"language"])),
+        publishedAt: doc.get(FieldPath(["news" ,"publishedAt"])),
+        source: doc.get(FieldPath(["news" ,"source"])),
+        site: doc.get(FieldPath(["news" ,"site"])),
+        category: doc.get(FieldPath(["news" ,"category"])),
+        country: doc.get(FieldPath(["news" ,"country"])),
+        author: doc.get(FieldPath(["news" ,"author"])),
+        keywords: [],
+        contentApi: doc.get(FieldPath(["news" ,"contentApi"])),
         newsImage: newsImage,
-        sdgNumber: doc.get("sdgNumber"),
+        sdgNumber: doc.get(FieldPath(["news" ,"sdgNumber"])),
       );
       return BookmarkItem(
         uuid: doc.id,
-        dateAdded: doc.get("dateAdded"),
+        dateAdded: (doc.get("dateAdded") as Timestamp).toDate(),
         pos: doc.get("pos"),
         newsItem: newsItem,
       );
