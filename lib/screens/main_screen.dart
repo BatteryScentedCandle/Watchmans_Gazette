@@ -15,6 +15,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _curFragment = 0;
+  bool _hovered = false;
+
+  final ValueNotifier<bool> _dragNotifier = ValueNotifier(false);
 
   NavigationDestination _buildBookmarksNav() {
     return NavigationDestination(
@@ -23,7 +26,38 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  bool _hovered = false;
+  Widget _buildDragNotifier() {
+    return ValueListenableBuilder(
+      valueListenable: _dragNotifier,
+      builder: (context, value, widget) {
+        return AnimatedContainer(
+          height: value ? 150 : 0,
+          width: value ? 150 : 0,
+          alignment: .center,
+          duration: Duration(milliseconds: 250),
+          curve: Curves.fastOutSlowIn,
+          decoration: BoxDecoration(
+            color: value ? AppColors.secondary : Colors.transparent,
+            borderRadius: .all(.circular(50)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHoverNotifier() {
+    return AnimatedContainer(
+      height: _hovered ? 150 : 0,
+      width: _hovered ? 150 : 0,
+      alignment: .center,
+      duration: Duration(milliseconds: 250),
+      curve: Curves.fastOutSlowIn,
+      decoration: BoxDecoration(
+        color: _hovered ? AppColors.primary : Colors.transparent,
+        borderRadius: .all(.circular(50)),
+      ),
+    );
+  }
 
   Widget _buildNavBar() {
     return NavigationBar(
@@ -37,33 +71,23 @@ class _MainScreenState extends State<MainScreen> {
               onSuccess: (bookmark) {
                 ScaffoldMessenger.of(context)
                   ..clearSnackBars()
-                  ..showSnackBar(SnackBar(content: Text("Added to bookmarks!")));
+                  ..showSnackBar(
+                    SnackBar(content: Text("Added to bookmarks!")),
+                  );
               },
               onFail: (message) {
                 ScaffoldMessenger.of(context)
                   ..clearSnackBars()
                   ..showSnackBar(SnackBar(content: Text(message)));
-              }
-              ,
+              },
             );
           },
           builder: (context, candidates, rejected) {
             _hovered = candidates.isNotEmpty;
             return Stack(
               children: [
-                Center(
-                  child: AnimatedContainer(
-                    height: _hovered ? 150 : 0,
-                    width: _hovered ? 150 : 0,
-                    alignment: .center,
-                    duration: Duration(milliseconds: 250),
-                    curve: Curves.fastOutSlowIn,
-                    decoration: BoxDecoration(
-                      color: _hovered ? AppColors.primary : Colors.transparent,
-                      borderRadius: .all(.circular(50)),
-                    ),
-                  ),
-                ),
+                Center(child: _buildDragNotifier()),
+                Center(child: _buildHoverNotifier()),
                 _buildBookmarksNav(),
               ],
             );
@@ -83,7 +107,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildHome() {
-    return ArticlesPage();
+    return ArticlesPage(dragNotifier: _dragNotifier);
   }
 
   Widget _buildBookmarks() {

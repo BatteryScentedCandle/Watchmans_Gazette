@@ -8,9 +8,10 @@ import 'package:watchmans_gazette/screens/search_screen.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
 
 class NewsGridItem extends StatelessWidget {
+  final ValueNotifier<bool> dragNotifier;
   final NewsItem article;
 
-  const NewsGridItem({super.key, required this.article});
+  const NewsGridItem({super.key, required this.article, required this.dragNotifier});
 
   Widget _buildCard(BuildContext context) {
     return Card(
@@ -115,6 +116,8 @@ class NewsGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return LongPressDraggable<NewsItem>(
       data: article,
+      onDragStarted: () => dragNotifier.value = true,
+      onDragEnd: (_) => dragNotifier.value = false,
       feedback: RotationTransition(
         turns: AlwaysStoppedAnimation(-15 / 360),
         child: Opacity(
@@ -128,7 +131,8 @@ class NewsGridItem extends StatelessWidget {
 }
 
 class ArticlesPage extends StatefulWidget {
-  const ArticlesPage({super.key});
+  final ValueNotifier<bool> dragNotifier;
+  const ArticlesPage({super.key, required this.dragNotifier});
 
   @override
   State<ArticlesPage> createState() => _ArticlesPageState();
@@ -274,7 +278,7 @@ class _ArticlesPageState extends State<ArticlesPage>
         ),
         itemCount: _news.length,
         itemBuilder: (context, index) {
-          return NewsGridItem(article: _news.values.elementAt(index));
+          return NewsGridItem(article: _news.values.elementAt(index), dragNotifier: widget.dragNotifier,);
         },
       ),
     );
