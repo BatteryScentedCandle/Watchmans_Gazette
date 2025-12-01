@@ -97,12 +97,7 @@ class _UserProfilePage extends State<UserProfilePage> {
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
-                await user!
-                    .delete(); //TODO: add confirmation before proceeding with deletion
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LandingPage()),
-                );
+                _deleteAccountConfirmation(context);
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -268,6 +263,38 @@ Future<void> _changePassword(
           SnackBar(
             content: Text('Password not changed due to ${error.toString()}'),
           ),
+        );
+      });
+}
+
+Future<void> _deleteAccountConfirmation(BuildContext context) async {
+  User? user = await FirebaseAuth.instance.currentUser;
+  showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Please Confirm'),
+          content: const Text('Are you sure to delete your account?'),
+          actions: [
+            // The "Yes" button
+            TextButton(
+                onPressed: () async {
+                  await user!
+                      .delete();
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LandingPage()),
+                  );
+                  },
+                child: const Text('Yes')),
+            TextButton(
+                onPressed: () {
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                },
+                child: const Text('No'))
+          ],
         );
       });
 }
