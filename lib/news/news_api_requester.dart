@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:watchmans_gazette/news/sdg_constants.dart';
 

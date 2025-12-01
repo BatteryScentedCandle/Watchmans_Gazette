@@ -12,7 +12,11 @@ class NewsGridItem extends StatelessWidget {
   final ValueNotifier<bool> dragNotifier;
   final NewsItem article;
 
-  const NewsGridItem({super.key, required this.article, required this.dragNotifier});
+  const NewsGridItem({
+    super.key,
+    required this.article,
+    required this.dragNotifier,
+  });
 
   Widget _buildCard(BuildContext context) {
     return Card(
@@ -168,7 +172,12 @@ class NewsGridItem extends StatelessWidget {
 
 class ArticlesPage extends StatefulWidget {
   final ValueNotifier<bool> dragNotifier;
-  const ArticlesPage({super.key, required this.dragNotifier});
+  final ScrollController scrollController;
+  const ArticlesPage({
+    super.key,
+    required this.dragNotifier,
+    required this.scrollController,
+  });
 
   @override
   State<ArticlesPage> createState() => _ArticlesPageState();
@@ -177,7 +186,6 @@ class ArticlesPage extends StatefulWidget {
 class _ArticlesPageState extends State<ArticlesPage>
     with TickerProviderStateMixin {
   final Map<int, NewsItem> _news = Map.identity();
-  final ScrollController _scrollController = ScrollController();
   bool _loadingNews = false;
   SearchFilter? _searchFilter;
 
@@ -305,7 +313,7 @@ class _ArticlesPageState extends State<ArticlesPage>
         _loadMoreNews();
       },
       child: GridView.builder(
-        controller: _scrollController,
+        controller: widget.scrollController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 8,
@@ -314,7 +322,10 @@ class _ArticlesPageState extends State<ArticlesPage>
         ),
         itemCount: _news.length,
         itemBuilder: (context, index) {
-          return NewsGridItem(article: _news.values.elementAt(index), dragNotifier: widget.dragNotifier,);
+          return NewsGridItem(
+            article: _news.values.elementAt(index),
+            dragNotifier: widget.dragNotifier,
+          );
         },
       ),
     );
@@ -335,10 +346,10 @@ class _ArticlesPageState extends State<ArticlesPage>
     return Scaffold(
       appBar: _buildAppBar(),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0),
         child: NotificationListener<OverscrollIndicatorNotification>(
           onNotification: (scroll) {
-            if (_scrollController.position.userScrollDirection == .forward) {
+            if (widget.scrollController.position.userScrollDirection == .forward) {
               return false;
             }
             _newsStream.close();
