@@ -19,8 +19,8 @@ class _MainScreenState extends State<MainScreen> {
         NavigationDestination(icon: Icon(Icons.home), label: "Home"),
         NavigationDestination(icon: Icon(Icons.bookmarks), label: "Bookmarks"),
         NavigationDestination(
-          icon: Icon(Icons.portrait_outlined),
-          label: "Profile",
+          icon: Icon(Icons.account_circle),
+          label: "Account",
         ),
       ],
       onDestinationSelected: (index) {
