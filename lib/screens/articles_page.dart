@@ -170,16 +170,11 @@ class NewsGridItem extends StatelessWidget {
         },
         child: Opacity(
           opacity: 0.8,
-          child: SizedBox(
-            height: 200,
-            width: 160,
-            child: _buildCard(context),
-          ),
+          child: SizedBox(height: 200, width: 160, child: _buildCard(context)),
         ),
       ),
 
       child: _buildCard(context),
-
     );
   }
 }
@@ -282,6 +277,18 @@ class _ArticlesPageState extends State<ArticlesPage>
     return AppBar(
       title: Text("News Articles"),
       actions: [
+        _searchFilter != null
+            ? IconButton(
+                onPressed: () {
+                  setState(() {
+                    _searchFilter = null;
+                    _resetNews();
+                    _loadMoreNews();
+                  });
+                },
+                icon: Icon(Icons.filter_list_off),
+              )
+            : Container(),
         IconButton(
           onPressed: () async {
             await _newsStream.close();
@@ -363,7 +370,8 @@ class _ArticlesPageState extends State<ArticlesPage>
         padding: const EdgeInsets.only(left: 16.0, right: 16.0),
         child: NotificationListener<OverscrollIndicatorNotification>(
           onNotification: (scroll) {
-            if (widget.scrollController.position.userScrollDirection == .forward) {
+            if (widget.scrollController.position.userScrollDirection ==
+                .forward) {
               return false;
             }
             _newsStream.close();
