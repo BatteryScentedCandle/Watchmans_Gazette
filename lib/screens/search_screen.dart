@@ -41,23 +41,17 @@ class _SearchScreenState extends State<SearchScreen> {
           maxLines: 1,
           controller: _searchController,
           onSubmitted: (input) => _submitSearch(input: input),
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: _inputFontSize,
-          ),
+          style: TextStyle(color: Colors.black, fontSize: _inputFontSize),
           cursorColor: AppColors.primary,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.searchBG),
-              borderRadius: .all(.circular(50))
+              borderRadius: .all(.circular(50)),
             ),
             filled: true,
             hint: Text(
               "Search",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: _inputFontSize,
-              ),
+              style: TextStyle(color: Colors.black, fontSize: _inputFontSize),
             ),
           ),
         ),
@@ -146,11 +140,44 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: ListView.builder(
-        itemCount: _sdgChoices.length,
-        itemBuilder: (context, index) {
-          return _buildSDGFilterItem(index);
-        },
+      body: Column(
+        mainAxisSize: .max,
+        children: [
+          Container(
+            color: AppColors.backgroundDarker,
+            child: Row(
+              crossAxisAlignment: .center,
+              mainAxisAlignment: .end,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _sdgChoices.fillRange(0, 17, true);
+                    });
+                  },
+                  icon: Icon(Icons.select_all),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _sdgChoices.fillRange(0, 17, false);
+                      _searchController.clear();
+                    });
+                  },
+                  icon: Icon(Icons.filter_list_off),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _sdgChoices.length,
+              itemBuilder: (context, index) {
+                return _buildSDGFilterItem(index);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
