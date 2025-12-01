@@ -47,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: 350,
                     child: TextField(
+                      autofillHints: [AutofillHints.email],
                       decoration: const InputDecoration(
                         labelText: "Email",
                         labelStyle: TextStyle(fontWeight: FontWeight.normal),
@@ -74,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: 350,
                     child: TextField(
+                      obscureText: true,
                       decoration: const InputDecoration(
                         labelText: "Password",
                         labelStyle: TextStyle(fontWeight: FontWeight.normal),
@@ -218,7 +220,6 @@ Future<void> loginUser({
     }
 
     onSuccess("Welcome to The Watchman's Gazette");
-
   } catch (e) {
     if (onFail != null) {
       onFail("Unable to Log In");

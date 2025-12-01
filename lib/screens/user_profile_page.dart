@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/screens/landing_page.dart';
@@ -97,7 +98,71 @@ class _UserProfilePage extends State<UserProfilePage> {
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
-                _deleteAccountConfirmation(context);
+                final TextEditingController editController =
+                    TextEditingController();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext ctx) {
+                    return AlertDialog(
+                      title: const Text('Please Confirm'),
+                      content: Column(
+                        mainAxisSize: .min,
+                        children: [
+                          const Text('Enter password to delete account'),
+                          TextField(
+                            obscureText: true,
+                            controller: editController,
+                            onSubmitted: (input) =>
+                                _deleteAccountConfirmation(input),
+                            decoration: InputDecoration(
+                              hintText: "Enter password...",
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        // The "Yes" button
+                        TextButton(
+                          onPressed: () async {
+                            _deleteAccountConfirmation(
+                              editController.text,
+                              onSuccess: () {
+                                Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LandingPage(),
+                                  ),
+                                );
+                                ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    SnackBar(content: Text("Account deleted")),
+                                  );
+                              },
+                              onFail: (message) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    SnackBar(content: Text(message)),
+                                  );
+                              },
+                            );
+                          },
+                          child: const Text('Yes'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Close the dialog
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('No'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -146,14 +211,17 @@ Widget _buildHeader(BuildContext context) {
 
         const SizedBox(height: 8),
 
-        Text(
-          '${user?.email}',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            fontSize: 25,
-            fontWeight: FontWeight.w100,
-            letterSpacing: 8,
-            color: Colors.black,
+        FittedBox(
+          fit: .fitWidth,
+          child: Text(
+            '${user?.email}',
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              fontSize: 25,
+              fontWeight: FontWeight.w100,
+              letterSpacing: 8,
+              color: Colors.black,
+            ),
           ),
         ),
 
@@ -162,7 +230,6 @@ Widget _buildHeader(BuildContext context) {
     ),
   );
 }
-
 
 //Password Changer
 Future<void> _changePasswordField(context) async {
@@ -174,7 +241,8 @@ Future<void> _changePasswordField(context) async {
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: Color(0xFFF8EDEA),
-        title: Text('Change Password',
+        title: Text(
+          'Change Password',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'Metropolis',
@@ -182,7 +250,8 @@ Future<void> _changePasswordField(context) async {
             fontWeight: FontWeight.w100,
             letterSpacing: 2,
             color: Colors.black,
-          ),),
+          ),
+        ),
 
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -190,8 +259,8 @@ Future<void> _changePasswordField(context) async {
             TextField(
               obscureText: true,
               decoration: InputDecoration(
-                  labelText: "Password",
-                  labelStyle: TextStyle(fontWeight: FontWeight.normal)
+                labelText: "Password",
+                labelStyle: TextStyle(fontWeight: FontWeight.normal),
               ),
               onChanged: (value) {
                 currentPassword = value;
@@ -202,8 +271,10 @@ Future<void> _changePasswordField(context) async {
 
             TextField(
               obscureText: true,
-              decoration: InputDecoration( labelText: "New Password",
-                  labelStyle: TextStyle(fontWeight: FontWeight.normal)),
+              decoration: InputDecoration(
+                labelText: "New Password",
+                labelStyle: TextStyle(fontWeight: FontWeight.normal),
+              ),
               onChanged: (value) {
                 newPassword = value;
               },
@@ -267,34 +338,36 @@ Future<void> _changePassword(
       });
 }
 
-Future<void> _deleteAccountConfirmation(BuildContext context) async {
-  User? user = await FirebaseAuth.instance.currentUser;
-  showDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return AlertDialog(
-          title: const Text('Please Confirm'),
-          content: const Text('Are you sure to delete your account?'),
-          actions: [
-            // The "Yes" button
-            TextButton(
-                onPressed: () async {
-                  await user!
-                      .delete();
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LandingPage()),
-                  );
-                  },
-                child: const Text('Yes')),
-            TextButton(
-                onPressed: () {
-                  // Close the dialog
-                  Navigator.of(context).pop();
-                },
-                child: const Text('No'))
-          ],
-        );
+Future<void> _deleteAccountConfirmation(
+  String password, {
+  Function()? onSuccess,
+  Function(String)? onFail,
+}) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user == null || user.email == null) {
+    if (onFail != null) {
+      onFail("account not initialized properly for deletion");
+    }
+    return;
+  }
+  AuthCredential cred = EmailAuthProvider.credential(
+    email: user.email!,
+    password: password,
+  );
+
+  user
+      .reauthenticateWithCredential(cred)
+      .then((value) {
+        FirebaseFirestore db = FirebaseFirestore.instance;
+        db.collection('users').doc(value.user!.uid).delete();
+        user.delete();
+        if (onSuccess != null) {
+          onSuccess();
+        }
+      })
+      .catchError((error) {
+        if (onFail != null) {
+          onFail("$error");
+        }
       });
 }

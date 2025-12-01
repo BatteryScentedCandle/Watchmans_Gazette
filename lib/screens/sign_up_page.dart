@@ -48,6 +48,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   SizedBox(
                     width: 350,
                     child: TextField(
+                      autofillHints: [AutofillHints.email],
+                      enableInteractiveSelection: true,
                       decoration: const InputDecoration(
                         labelText: "Email",
                         labelStyle: TextStyle(fontWeight: FontWeight.normal),
@@ -76,6 +78,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   SizedBox(
                     width: 350,
                     child: TextField(
+                      obscureText: true,
                       decoration: const InputDecoration(
                         labelText: "Password",
                         labelStyle: TextStyle(fontWeight: FontWeight.normal),
@@ -207,10 +210,10 @@ Future<void> signUpUser({
         .createUserWithEmailAndPassword(email: email, password: password);
 
     String uid = userCredential.user!.uid;
-    final userInfo = <String, dynamic>{"email": email, "password": password};
+    final userInfo = <String, dynamic>{"email": email};
 
     await db.collection("users").doc(uid).set(userInfo);
-    onSuccess("Welcome to The Watchman's Gazette");
+    onSuccess("Account created");
   } catch (e) {
     if (onFail != null) {
       onFail("Unable to Sign Up");
