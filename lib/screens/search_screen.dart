@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/components/stroked_text.dart';
 import 'package:watchmans_gazette/news/sdg_constants.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
@@ -12,7 +13,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  static const double _inputFontSize = 16;
+  static const double _inputFontSize = 12;
   final TextEditingController _searchController = TextEditingController();
   final List<bool> _sdgChoices = .filled(17, false);
 
@@ -34,21 +35,29 @@ class _SearchScreenState extends State<SearchScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: TextField(
-        maxLines: 1,
-        controller: _searchController,
-        onSubmitted: (input) => _submitSearch(input: input),
-        style: TextStyle(color: AppColors.background, fontSize: _inputFontSize),
-        cursorColor: AppColors.background,
-        decoration: InputDecoration(
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+      title: Container(
+        margin: .only(top: 15, bottom: 15),
+        child: TextField(
+          maxLines: 1,
+          controller: _searchController,
+          onSubmitted: (input) => _submitSearch(input: input),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: _inputFontSize,
           ),
-          hint: Text(
-            "Search",
-            style: TextStyle(
-              color: AppColors.backgroundDarker,
-              fontSize: _inputFontSize,
+          cursorColor: AppColors.primary,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.searchBG),
+              borderRadius: .all(.circular(50))
+            ),
+            filled: true,
+            hint: Text(
+              "Search",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: _inputFontSize,
+              ),
             ),
           ),
         ),
@@ -90,7 +99,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     return LinearGradient(
                       begin: .centerLeft,
                       end: .centerRight,
-                      colors: [Colors.black, Colors.transparent],
+                      colors: [Colors.black, Colors.black, Colors.transparent],
+                      stops: [0, 0.01, 1],
                     ).createShader(rect);
                   },
                   blendMode: .dstIn,
@@ -101,21 +111,30 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-            Row(
-              crossAxisAlignment: .center,
-              mainAxisAlignment: .spaceBetween,
-              children: [
-                SizedBox(),
-                Text(SDG_TITLES[index]),
-                Checkbox(
-                  value: _sdgChoices[index],
-                  onChanged: (checked) {
-                    if (checked != null) {
-                      setState(() => _sdgChoices[index] = checked);
-                    }
-                  },
-                ),
-              ],
+            Padding(
+              padding: .only(top: 10, bottom: 10),
+              child: Row(
+                crossAxisAlignment: .center,
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  SizedBox(width: 80),
+                  Expanded(
+                    child: Text(
+                      SDG_TITLES[index],
+                      maxLines: 2,
+                      textAlign: .center,
+                    ),
+                  ),
+                  Checkbox(
+                    value: _sdgChoices[index],
+                    onChanged: (checked) {
+                      if (checked != null) {
+                        setState(() => _sdgChoices[index] = checked);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),

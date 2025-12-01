@@ -7,4 +7,5 @@ class AppColors {
   static const Color error = Color(0xFFE57373);             // #E57373
   static const Color background = Color(0xFFFFFBF8);        // #FFFBF8
   static const Color backgroundDarker = Color(0xFFFAF8F6);  // #DAD8D6
+  static const Color searchBG = Color(0xFFE8A87C);          // #EFE4DA
 }
