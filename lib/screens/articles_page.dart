@@ -118,14 +118,28 @@ class NewsGridItem extends StatelessWidget {
       data: article,
       onDragStarted: () => dragNotifier.value = true,
       onDragEnd: (_) => dragNotifier.value = false,
-      feedback: RotationTransition(
-        turns: AlwaysStoppedAnimation(-15 / 360),
+      feedback: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: -15 / 360),
+        duration: Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        builder: (context, value, child) {
+          return RotationTransition(
+            turns: AlwaysStoppedAnimation(value),
+            child: child,
+          );
+        },
         child: Opacity(
           opacity: 0.8,
-          child: SizedBox(height: 200, width: 160, child: _buildCard(context)),
+          child: SizedBox(
+            height: 200,
+            width: 160,
+            child: _buildCard(context),
+          ),
         ),
       ),
+
       child: _buildCard(context),
+
     );
   }
 }

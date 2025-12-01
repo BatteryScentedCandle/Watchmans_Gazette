@@ -41,6 +41,9 @@ class _SearchScreenState extends State<SearchScreen> {
         style: TextStyle(color: AppColors.background, fontSize: _inputFontSize),
         cursorColor: AppColors.background,
         decoration: InputDecoration(
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
           hint: Text(
             "Search",
             style: TextStyle(
@@ -76,6 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
         setState(() => _sdgChoices[index] = !_sdgChoices[index]);
       },
       child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         child: Stack(
           children: [
             Positioned.fill(

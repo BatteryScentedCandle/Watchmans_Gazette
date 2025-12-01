@@ -46,23 +46,20 @@ class ContentViewPage extends StatelessWidget {
                 Row(
                   crossAxisAlignment: .center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        children: [
-                          Icon(Icons.account_circle),
-                          Text(_getAuthor()),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        Icon(Icons.account_circle, size: 16),
+                        SizedBox(width: 4),
+                        Text(_getAuthor()),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        children: [
-                          Icon(Icons.calendar_month),
-                          Text(newsContent.publishedAt),
-                        ],
-                      ),
+                    SizedBox(width: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_month, size: 16),
+                        SizedBox(width: 4),
+                        Text(newsContent.publishedAt),
+                      ],
                     ),
                   ],
                 ),
@@ -70,7 +67,7 @@ class ContentViewPage extends StatelessWidget {
                   child: Text(
                     "View source...",
                     textAlign: .start,
-                    style: TextStyle(color: Colors.lightBlue),
+                    style: TextStyle(color: Colors.pinkAccent),
                   ),
                   onTapUp: (details) async {
                     final uri = Uri.parse(newsContent.source);
