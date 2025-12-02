@@ -23,173 +23,186 @@ class _UserProfilePage extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Account Settings")),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: .only(top: 15, bottom: 15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildHeader(context),
-          
-              //Change Password
-              SizedBox(
-                width: 250,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    _changePasswordField(context);
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.password_rounded),
-                      SizedBox(width: 8),
-                      Text(
-                        'Change Password',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          
-              const SizedBox(height: 20),
-          
-              //Sign Out
-              SizedBox(
-                width: 250,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => LandingPage()),
-                      (route) => false,
-                    );
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.exit_to_app_rounded),
-                      SizedBox(width: 8),
-                      Text(
-                        'Sign Out',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          
-              const SizedBox(height: 20),
-          
-              //Delete Account
-              SizedBox(
-                width: 250,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final TextEditingController editController =
-                        TextEditingController();
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext ctx) {
-                        return AlertDialog(
-                          title: const Text('Please Confirm'),
-                          content: Column(
-                            mainAxisSize: .min,
-                            children: [
-                              const Text('Enter password to delete account'),
-                              TextField(
-                                obscureText: true,
-                                controller: editController,
-                                onSubmitted: (input) =>
-                                    _deleteAccountConfirmation(input),
-                                decoration: InputDecoration(
-                                  hintText: "Enter password...",
-                                ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: SizedBox(
+              height: constraints.biggest.height,
+              child: Padding(
+                padding: .only(top: 15, bottom: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildHeader(context),
+              
+                    //Change Password
+                    SizedBox(
+                      width: 250,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          _changePasswordField(context);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.password_rounded),
+                            SizedBox(width: 8),
+                            Text(
+                              'Change Password',
+                              style: TextStyle(
+                                fontFamily: 'Metropolis',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1,
+                                color: Colors.black54,
                               ),
-                            ],
-                          ),
-                          actions: [
-                            // The "Yes" button
-                            TextButton(
-                              onPressed: () async {
-                                _deleteAccountConfirmation(
-                                  editController.text,
-                                  onSuccess: () {
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => LandingPage(),
-                                      ),
-                                      (route) => false,
-                                    );
-                                    ScaffoldMessenger.of(context)
-                                      ..clearSnackBars()
-                                      ..showSnackBar(
-                                        SnackBar(content: Text("Account deleted")),
-                                      );
-                                  },
-                                  onFail: (message) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context)
-                                      ..clearSnackBars()
-                                      ..showSnackBar(
-                                        SnackBar(content: Text(message)),
-                                      );
-                                  },
-                                );
-                              },
-                              child: const Text('Yes'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Close the dialog
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('No'),
                             ),
                           ],
-                        );
-                      },
-                    );
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.remove_circle_outline_rounded),
-                      SizedBox(width: 8),
-                      Text(
-                        'Delete Account',
-                        style: TextStyle(
-                          fontFamily: 'Metropolis',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1,
-                          color: Colors.black54,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+              
+                    const SizedBox(height: 20),
+              
+                    //Sign Out
+                    SizedBox(
+                      width: 250,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LandingPage(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.exit_to_app_rounded),
+                            SizedBox(width: 8),
+                            Text(
+                              'Sign Out',
+                              style: TextStyle(
+                                fontFamily: 'Metropolis',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+              
+                    const SizedBox(height: 20),
+              
+                    //Delete Account
+                    SizedBox(
+                      width: 250,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final TextEditingController editController =
+                              TextEditingController();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext ctx) {
+                              return AlertDialog(
+                                title: const Text('Please Confirm'),
+                                content: Column(
+                                  mainAxisSize: .min,
+                                  children: [
+                                    const Text(
+                                      'Enter password to delete account',
+                                    ),
+                                    TextField(
+                                      obscureText: true,
+                                      controller: editController,
+                                      onSubmitted: (input) =>
+                                          _deleteAccountConfirmation(input),
+                                      decoration: InputDecoration(
+                                        hintText: "Enter password...",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  // The "Yes" button
+                                  TextButton(
+                                    onPressed: () async {
+                                      _deleteAccountConfirmation(
+                                        editController.text,
+                                        onSuccess: () {
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => LandingPage(),
+                                            ),
+                                            (route) => false,
+                                          );
+                                          ScaffoldMessenger.of(context)
+                                            ..clearSnackBars()
+                                            ..showSnackBar(
+                                              SnackBar(
+                                                content: Text("Account deleted"),
+                                              ),
+                                            );
+                                        },
+                                        onFail: (message) {
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(context)
+                                            ..clearSnackBars()
+                                            ..showSnackBar(
+                                              SnackBar(content: Text(message)),
+                                            );
+                                        },
+                                      );
+                                    },
+                                    child: const Text('Yes'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Close the dialog
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('No'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.remove_circle_outline_rounded),
+                            SizedBox(width: 8),
+                            Text(
+                              'Delete Account',
+                              style: TextStyle(
+                                fontFamily: 'Metropolis',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
