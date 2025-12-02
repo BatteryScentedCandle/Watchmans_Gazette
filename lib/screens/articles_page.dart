@@ -19,7 +19,95 @@ class NewsGridItem extends StatelessWidget {
     required this.dragNotifier,
   });
 
-  Widget _buildCard(BuildContext context) {
+  Widget _buildLandscapeCard(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      child: GestureDetector(
+        onTapUp: (details) async {
+          await NewsApiRequester.getNewsContent(
+            newsItem: article,
+            onSuccess: (message, result) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ContentViewPage(newsContent: result.content);
+                  },
+                ),
+              );
+            },
+            onFail: (message) {
+              ScaffoldMessenger.of(context)
+                ..clearSnackBars()
+                ..showSnackBar(SnackBar(content: Text(message)));
+            },
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //Image
+            Expanded(flex: 4, child: _ArticleTag()),
+
+            //Text Contents
+            Expanded(
+              flex: 6,
+              child: Container(
+                color: Color(0xFFF8EDEA),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        article.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Metropolis',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Expanded(
+                        child: Text(
+                          article.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Metropolis',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        DateFormatter.formatReadable(
+                          DateTime.parse(article.publishedAt),
+                        ),
+                        style: TextStyle(
+                          fontFamily: 'Metropolis',
+                          fontWeight: FontWeight.w300,
+                          fontSize: 10,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortraitCard(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -104,6 +192,16 @@ class NewsGridItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCard(BuildContext context) {
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        return orientation == .portrait
+            ? _buildPortraitCard(context)
+            : _buildLandscapeCard(context);
+      },
     );
   }
 
@@ -327,19 +425,23 @@ class _ArticlesPageState extends State<ArticlesPage>
 
   Widget _buildBodyWidget() {
     return Expanded(
-      child: GridView.builder(
-        controller: widget.scrollController,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 0.8,
-        ),
-        itemCount: _news.length,
-        itemBuilder: (context, index) {
-          return NewsGridItem(
-            article: _news.values.elementAt(index),
-            dragNotifier: widget.dragNotifier,
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          return GridView.builder(
+            controller: widget.scrollController,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: orientation == .portrait ? 2 : 1,
+              childAspectRatio: orientation == .portrait ? 0.8 : 4,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+            ),
+            itemCount: _news.length,
+            itemBuilder: (context, index) {
+              return NewsGridItem(
+                article: _news.values.elementAt(index),
+                dragNotifier: widget.dragNotifier,
+              );
+            },
           );
         },
       ),
