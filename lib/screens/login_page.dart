@@ -15,6 +15,52 @@ class _LoginPageState extends State<LoginPage> {
   String email = "";
   String password = "";
 
+  final _formKey = GlobalKey<FormState>();
+
+  String? _validateEmail(String? input) {
+    if (input == null || input.isEmpty) {
+      return "Do not leave email empty!";
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? input) {
+    if (input == null || input.isEmpty) {
+      return "Do not leave password empty!";
+    }
+    if (input.length < 6) {
+      return "password must have at least 6 characters";
+    }
+    return null;
+  }
+
+  void _onLogin() async {
+    if(_formKey.currentState == null || !_formKey.currentState!.validate()){
+      return;
+    }
+    await loginUser(
+      email: email,
+      password: password,
+      onSuccess: (message) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      },
+      onFail: (message) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,104 +88,89 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 30),
                 ],
               ),
-              Column(
-                children: <Widget>[
-                  SizedBox(
-                    width: 350,
-                    child: TextField(
-                      autofillHints: [AutofillHints.email],
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                        labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                        floatingLabelStyle: TextStyle(color: Color(0xFFB87A7A)),
-                        prefixIcon: Icon(Icons.email_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      width: 350,
+                      child: TextFormField(
+                        validator: _validateEmail,
+                        autofillHints: [AutofillHints.email],
+                        decoration: const InputDecoration(
+                          labelText: "Email",
+                          labelStyle: TextStyle(fontWeight: FontWeight.normal),
+                          floatingLabelStyle: TextStyle(
+                            color: Color(0xFFB87A7A),
+                          ),
+                          prefixIcon: Icon(Icons.email_rounded),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            borderSide: BorderSide(
+                              color: Color(0xFFD4C4B0),
+                              width: 2,
+                            ),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                          borderSide: BorderSide(
-                            color: Color(0xFFD4C4B0),
-                            width: 2,
+                        onChanged: (value) {
+                          setState(() {
+                            email = value;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: 350,
+                      child: TextFormField(
+                        validator: _validatePassword,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: "Password",
+                          labelStyle: TextStyle(fontWeight: FontWeight.normal),
+                          floatingLabelStyle: TextStyle(
+                            color: Color(0xFFB87A7A),
+                          ),
+                          prefixIcon: Icon(Icons.password_rounded),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            borderSide: BorderSide(
+                              color: Color(0xFFD4C4B0),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            password = value;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+
+                    SizedBox(
+                      width: 200,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _onLogin,
+                        child: const Text(
+                          "Log In",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black,
                           ),
                         ),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          email = value;
-                        });
-                      },
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: 350,
-                    child: TextField(
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: "Password",
-                        labelStyle: TextStyle(fontWeight: FontWeight.normal),
-                        floatingLabelStyle: TextStyle(color: Color(0xFFB87A7A)),
-                        prefixIcon: Icon(Icons.password_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                          borderSide: BorderSide(
-                            color: Color(0xFFD4C4B0),
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          password = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  SizedBox(
-                    width: 200,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await loginUser(
-                          email: email,
-                          password: password,
-                          onSuccess: (message) {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MainScreen(),
-                              ),
-                            );
-
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(message)));
-                          },
-                          onFail: (message) {
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(message)));
-                          },
-                        );
-                      },
-                      child: const Text(
-                        "Log In",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 10),
 
