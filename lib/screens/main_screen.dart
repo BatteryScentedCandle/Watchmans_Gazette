@@ -64,7 +64,10 @@ class _MainScreenState extends State<MainScreen> {
     return NavigationBar(
       selectedIndex: _curFragment,
       destinations: [
-        NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+        NavigationDestination(
+          icon: Icon(Icons.article_rounded),
+          label: "Articles",
+        ),
         DragTarget<NewsItem>(
           onAcceptWithDetails: (details) async {
             await BookmarkManager.addBookmark(
