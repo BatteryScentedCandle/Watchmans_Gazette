@@ -291,10 +291,13 @@ class _ArticlesPageState extends State<ArticlesPage>
             final result = await _showSearchScreen();
             if (!context.mounted) return;
             if (result is SearchFilter?) {
+              if(result == null){
+                return;
+              }
               setState(() {
                 _newsStream = StreamController();
                 _news.clear();
-                _searchFilter = result;
+                _searchFilter = !result.isDefault() ? result : null;
                 _loadMoreNews();
               });
             }
