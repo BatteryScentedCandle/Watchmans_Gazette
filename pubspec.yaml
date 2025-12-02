@@ -62,14 +62,14 @@ flutter_launcher_icons:
 flutter_native_splash:
   color: "#FFFBF8"
 
-  image: assets/icon/watchmans_gazette_logo_1152.png
+  image: assets/icon/watchmans_gazette_logo_768.png
 
   fullscreen: true
 
   android_12:
     color: "#FFFBF8"
 
-    image: assets/icon/watchmans_gazette_logo_1152.png
+    image: assets/icon/watchmans_gazette_logo_768.png
 
     fullscreen: true
 # For information on the generic Dart part of this file, see the
