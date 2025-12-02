@@ -35,18 +35,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onLogin() async {
-    if(_formKey.currentState == null || !_formKey.currentState!.validate()){
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
       return;
     }
     await loginUser(
       email: email,
       password: password,
       onSuccess: (message) {
-        Navigator.pop(context);
-        Navigator.pop(context);
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),
+          (route) => false,
         );
 
         ScaffoldMessenger.of(

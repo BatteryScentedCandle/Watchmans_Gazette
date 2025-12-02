@@ -65,9 +65,10 @@ class _UserProfilePage extends State<UserProfilePage> {
             child: ElevatedButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => LandingPage()),
+                  (route) => false,
                 );
               },
               child: Row(
@@ -127,12 +128,12 @@ class _UserProfilePage extends State<UserProfilePage> {
                             _deleteAccountConfirmation(
                               editController.text,
                               onSuccess: () {
-                                Navigator.pop(context);
-                                Navigator.pushReplacement(
+                                Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => LandingPage(),
                                   ),
+                                  (route) => false,
                                 );
                                 ScaffoldMessenger.of(context)
                                   ..clearSnackBars()

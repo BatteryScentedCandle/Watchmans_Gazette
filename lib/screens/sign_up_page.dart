@@ -46,9 +46,10 @@ class _SignUpPageState extends State<SignUpPage> {
           const SnackBar(content: Text("Successfully created account")),
         );
 
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => LandingPage()),
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false,
         );
       },
       onFail: (message) {
