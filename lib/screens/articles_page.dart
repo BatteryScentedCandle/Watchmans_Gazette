@@ -206,6 +206,9 @@ class NewsGridItem extends StatelessWidget {
   }
 
   Widget _ArticleTag() {
+    if(article.sdgNumber == -1){
+      return Container();
+    }
     return Stack(
       fit: StackFit.expand,
       children: [

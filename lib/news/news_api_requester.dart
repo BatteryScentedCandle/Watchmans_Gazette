@@ -116,7 +116,7 @@ class NewsApiRequester {
 
     final newsItems = _extractNews(
       news: body["response"],
-      sdg: sdg,
+      sdg: search == null || search.isEmpty ? sdg : -1,
       limit: limit,
       target: target,
       loadedIds: loadedIds,
