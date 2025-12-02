@@ -62,6 +62,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavBar() {
     return NavigationBar(
+      height: 60,
       selectedIndex: _curFragment,
       destinations: [
         NavigationDestination(
