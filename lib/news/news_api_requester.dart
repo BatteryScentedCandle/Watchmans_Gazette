@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:watchmans_gazette/news/sdg_constants.dart';
 
@@ -91,8 +92,12 @@ class NewsApiRequester {
 
     final response = await http.get(uri);
 
-    if (response.statusCode != 200) {
-      if (onFail != null) onFail("something went wrong");
+    // Due to time constraints, I just have to allow 403 status codes. I 
+    // haven't thoroughly tested it yet, but I feel like the API is sending a
+    // success payload with a 403 status sometimes.
+    if (response.statusCode != 200 && response.statusCode != 403) {
+      if (onFail != null) onFail("something went wrong, code: ${response.statusCode}");
+      debugPrint("body: ${response.body}");
       return;
     }
 

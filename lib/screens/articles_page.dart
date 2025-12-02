@@ -198,7 +198,8 @@ class _ArticlesPageState extends State<ArticlesPage>
   bool _loadingNews = false;
   SearchFilter? _searchFilter;
 
-  StreamController<List<NewsItem>> _newsStream = StreamController();
+  StreamController<List<NewsItem>> _newsStream = StreamController.broadcast();
+  int _streamId = 0;
 
   @override
   void initState() {
@@ -220,11 +221,8 @@ class _ArticlesPageState extends State<ArticlesPage>
     }
   }
 
-  void _loadMoreNews() async {
+  void _loadMoreNews({bool more = false}) async {
     if (_loadingNews) {
-      return;
-    }
-    if (_newsStream.hasListener) {
       return;
     }
     setState(() {
@@ -233,6 +231,10 @@ class _ArticlesPageState extends State<ArticlesPage>
         _newsStream.stream.listen(_addNews);
       }
     });
+    var key;
+    setState(() {
+      key = more ? _streamId : ++_streamId;
+    });
     await NewsApiRequester.getNewsBatch(
       search: _searchFilter?.search,
       loadedIds: _news.keys.toList(),
@@ -240,21 +242,17 @@ class _ArticlesPageState extends State<ArticlesPage>
           ? List.filled(17, true)
           : _searchFilter!.sdgFilters,
       onReceived: (message, result) {
+        if (key != _streamId) {
+          debugPrint("keys did not match $key != $_streamId");
+          return;
+        }
         setState(() {
-          if (!_newsStream.isClosed) {
-            _newsStream.add(result);
-          }
+          _newsStream.add(result);
           _loadingNews = false;
         });
       },
-      onFail: (message) {
-        ScaffoldMessenger.of(context)
-          ..clearSnackBars()
-          ..showSnackBar(SnackBar(content: Text(message)));
-      },
       onFinish: () async {
         debugPrint("done loading");
-        await _newsStream.close();
         setState(() {
           _loadingNews = false;
         });
@@ -291,7 +289,6 @@ class _ArticlesPageState extends State<ArticlesPage>
             : Container(),
         IconButton(
           onPressed: () async {
-            await _newsStream.close();
             final result = await _showSearchScreen();
             if (!context.mounted) return;
             if (result is SearchFilter?) {
@@ -310,10 +307,6 @@ class _ArticlesPageState extends State<ArticlesPage>
   }
 
   void _resetNews() {
-    if (!_newsStream.isClosed) {
-      _newsStream.close();
-    }
-    _newsStream = StreamController();
     _news.clear();
   }
 
@@ -326,13 +319,7 @@ class _ArticlesPageState extends State<ArticlesPage>
   }
 
   Widget _buildBodyWidget() {
-    return RefreshIndicator(
-      onRefresh: () async {
-        setState(() {
-          _resetNews();
-        });
-        _loadMoreNews();
-      },
+    return Expanded(
       child: GridView.builder(
         controller: widget.scrollController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -374,12 +361,18 @@ class _ArticlesPageState extends State<ArticlesPage>
                 .forward) {
               return false;
             }
-            _newsStream.close();
-            _newsStream = StreamController();
-            _loadMoreNews();
+            _loadMoreNews(more: true);
             return true;
           },
-          child: _buildBody(),
+          child: RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                _resetNews();
+              });
+              _loadMoreNews();
+            },
+            child: _buildBody(),
+          ),
         ),
       ),
     );
