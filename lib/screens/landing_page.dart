@@ -54,68 +54,70 @@ class LandingPage extends StatelessWidget {
 }
 
 Widget _buildHeader(BuildContext context) {
-  return Container(
-    padding: EdgeInsets.all(16.0),
+  return Flexible(
+    child: Container(
+      padding: EdgeInsets.all(16.0),
 
-    alignment: Alignment.center,
-    child: Column(
-      children: [
-        Container(width: 300, height: 2, color: Colors.black),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Container(width: 300, height: 2, color: Colors.black),
 
-        SizedBox(height: 8),
+          SizedBox(height: 8),
 
-        Text(
-          'THE',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            fontSize: 32,
-            fontWeight: FontWeight.w100,
-            letterSpacing: 8,
-            color: Colors.black,
+          Text(
+            'THE',
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              fontSize: 32,
+              fontWeight: FontWeight.w100,
+              letterSpacing: 8,
+              color: Colors.black,
+            ),
           ),
-        ),
 
-        Text(
-          'WATCHMAN\'S',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            fontSize: 45,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2,
-            color: Colors.black,
-            height: 1.1,
+          Text(
+            'WATCHMAN\'S',
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              fontSize: 45,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              color: Colors.black,
+              height: 1.1,
+            ),
           ),
-        ),
 
-        Text(
-          'GAZETTE',
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            fontSize: 45,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2,
-            color: Colors.black,
+          Text(
+            'GAZETTE',
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              fontSize: 45,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              color: Colors.black,
+            ),
           ),
-        ),
 
-        SizedBox(height: 8),
+          SizedBox(height: 8),
 
-        Container(width: 300, height: 2, color: Colors.black),
+          Container(width: 300, height: 2, color: Colors.black),
 
-        SizedBox(height: 10),
+          SizedBox(height: 10),
 
-        Text(
-          'Delivering the latest information on the Sustainable Development Goals ',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: 'Metropolis',
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1,
-            color: Colors.black54,
+          Text(
+            'Delivering the latest information on the Sustainable Development Goals ',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 1,
+              color: Colors.black54,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
