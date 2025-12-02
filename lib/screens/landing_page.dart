@@ -76,7 +76,7 @@ Widget _buildHeader(BuildContext context) {
         ),
 
         Text(
-          'WATCHMEN\'S',
+          'WATCHMAN\'S',
           style: TextStyle(
             fontFamily: 'Metropolis',
             fontSize: 45,
