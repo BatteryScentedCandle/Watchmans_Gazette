@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/date/date_formatter.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/screens/content_view_page.dart';
@@ -85,12 +86,14 @@ class NewsGridItem extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        article.publishedAt,
+                        DateFormatter.formatReadable(
+                          DateTime.parse(article.publishedAt),
+                        ),
                         style: TextStyle(
                           fontFamily: 'Metropolis',
                           fontWeight: FontWeight.w300,
                           fontSize: 10,
-                          color: Colors.grey[500],
+                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -292,7 +295,7 @@ class _ArticlesPageState extends State<ArticlesPage>
             final result = await _showSearchScreen();
             if (!context.mounted) return;
             if (result is SearchFilter?) {
-              if(result == null){
+              if (result == null) {
                 return;
               }
               setState(() {

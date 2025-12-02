@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/date/date_formatter.dart';
 import 'package:watchmans_gazette/news/bookmark_manager.dart';
 import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/screens/content_view_page.dart';
@@ -43,7 +44,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
     return Dismissible(
       key: Key(newsItem.id),
       direction: .horizontal,
-      onDismissed: (direction){
+      onDismissed: (direction) {
         _removeBookmark(index);
       },
       child: GestureDetector(
@@ -66,7 +67,6 @@ class _BookmarksPageState extends State<BookmarksPage> {
                 ..showSnackBar(SnackBar(content: Text(message)));
             },
           );
-
         },
         child: Card(
           elevation: 2,
@@ -110,12 +110,14 @@ class _BookmarksPageState extends State<BookmarksPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              newsItem.publishedAt,
+                              DateFormatter.formatReadable(
+                                DateTime.parse(newsItem.publishedAt),
+                              ),
                               style: TextStyle(
                                 fontFamily: 'Metropolis',
                                 fontWeight: FontWeight.w300,
                                 fontSize: 10,
-                                color: Colors.grey[500],
+                                color: Colors.black,
                               ),
                             ),
                           ],
