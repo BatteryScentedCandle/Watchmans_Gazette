@@ -18,22 +18,35 @@ class ContentViewPage extends StatelessWidget {
     return newsContent.author;
   }
 
+  Widget _buildImage() {
+    return ShaderMask(
+      shaderCallback: (rect) {
+        return LinearGradient(
+          begin: .topCenter,
+          end: .bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0, 0.7, 1],
+        ).createShader(rect);
+      },
+      blendMode: .dstIn,
+      child: Image.network(
+        newsContent.newsImage.img,
+        fit: .cover,
+        errorBuilder: (context, error, stackTrace) {
+          return SizedBox(
+            height: 120,
+            child: const Icon(Icons.article, color: Colors.grey),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildBody() {
     return SingleChildScrollView(
       child: Column(
         children: [
-          ShaderMask(
-            shaderCallback: (rect) {
-              return LinearGradient(
-                begin: .topCenter,
-                end: .bottomCenter,
-                colors: [Colors.black, Colors.black, Colors.transparent],
-                stops: [0, 0.7, 1],
-              ).createShader(rect);
-            },
-            blendMode: .dstIn,
-            child: Image.network(newsContent.newsImage.img),
-          ),
+          _buildImage(),
           Padding(
             padding: .only(left: 12, right: 12, bottom: 12),
             child: SelectionArea(
