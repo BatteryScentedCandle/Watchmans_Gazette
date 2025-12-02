@@ -284,6 +284,7 @@ class _ArticlesPageState extends State<ArticlesPage>
                   });
                 },
                 icon: Icon(Icons.filter_list_off),
+                tooltip: "clear filters",
               )
             : Container(),
         IconButton(
@@ -303,6 +304,7 @@ class _ArticlesPageState extends State<ArticlesPage>
             }
           },
           icon: Icon(Icons.search),
+          tooltip: "Search",
         ),
       ],
     );

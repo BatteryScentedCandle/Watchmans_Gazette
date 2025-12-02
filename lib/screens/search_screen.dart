@@ -60,6 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
         IconButton(
           onPressed: () => _submitSearch(input: _searchController.text),
           icon: Icon(Icons.search),
+          tooltip: "search",
         ),
       ],
     );
@@ -156,6 +157,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     });
                   },
                   icon: Icon(Icons.select_all),
+                  tooltip: "select all",
                 ),
                 IconButton(
                   onPressed: () {
@@ -165,6 +167,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     });
                   },
                   icon: Icon(Icons.filter_list_off),
+                  tooltip: "clear filters",
                 ),
               ],
             ),
