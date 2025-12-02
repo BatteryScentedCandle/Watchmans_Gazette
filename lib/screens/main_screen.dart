@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/news/bookmark_manager.dart';
+import 'package:watchmans_gazette/news/news_api_requester.dart';
 import 'package:watchmans_gazette/screens/articles_page.dart';
+import 'package:watchmans_gazette/screens/bookmarks_page.dart';
 import 'package:watchmans_gazette/screens/user_profile_page.dart';
+import 'package:watchmans_gazette/theme/app_color.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -11,20 +15,102 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _curFragment = 0;
+  bool _hovered = false;
+  final ScrollController _articleScrollController = ScrollController();
+
+  final ValueNotifier<bool> _dragNotifier = ValueNotifier(false);
+
+  NavigationDestination _buildBookmarksNav() {
+    return NavigationDestination(
+      icon: Icon(Icons.bookmarks),
+      label: "Bookmarks",
+    );
+  }
+
+  Widget _buildDragNotifier() {
+    return ValueListenableBuilder(
+      valueListenable: _dragNotifier,
+      builder: (context, value, widget) {
+        return AnimatedContainer(
+          height: value ? 150 : 0,
+          width: value ? 150 : 0,
+          alignment: .center,
+          duration: Duration(milliseconds: 250),
+          curve: Curves.fastOutSlowIn,
+          decoration: BoxDecoration(
+            color: value ? AppColors.secondary : Colors.transparent,
+            borderRadius: .all(.circular(50)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHoverNotifier() {
+    return AnimatedContainer(
+      height: _hovered ? 150 : 0,
+      width: _hovered ? 150 : 0,
+      alignment: .center,
+      duration: Duration(milliseconds: 250),
+      curve: Curves.fastOutSlowIn,
+      decoration: BoxDecoration(
+        color: _hovered ? AppColors.primary : Colors.transparent,
+        borderRadius: .all(.circular(50)),
+      ),
+    );
+  }
 
   Widget _buildNavBar() {
     return NavigationBar(
       selectedIndex: _curFragment,
       destinations: [
-        NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-        NavigationDestination(icon: Icon(Icons.bookmarks), label: "Bookmarks"),
         NavigationDestination(
-          icon: Icon(Icons.portrait_outlined),
-          label: "Profile",
+          icon: Icon(Icons.article_rounded),
+          label: "Articles",
+        ),
+        DragTarget<NewsItem>(
+          onAcceptWithDetails: (details) async {
+            await BookmarkManager.addBookmark(
+              newsItem: details.data,
+              onSuccess: (bookmark) {
+                ScaffoldMessenger.of(context)
+                  ..clearSnackBars()
+                  ..showSnackBar(
+                    SnackBar(content: Text("Added to bookmarks!")),
+                  );
+              },
+              onFail: (message) {
+                ScaffoldMessenger.of(context)
+                  ..clearSnackBars()
+                  ..showSnackBar(SnackBar(content: Text(message)));
+              },
+            );
+          },
+          builder: (context, candidates, rejected) {
+            _hovered = candidates.isNotEmpty;
+            return Stack(
+              children: [
+                Center(child: _buildDragNotifier()),
+                Center(child: _buildHoverNotifier()),
+                _buildBookmarksNav(),
+              ],
+            );
+          },
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.account_circle),
+          label: "Account",
         ),
       ],
       onDestinationSelected: (index) {
         setState(() {
+          if (index == 0) {
+            _articleScrollController.animateTo(
+              0,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
+            );
+          }
           _curFragment = index;
         });
       },
@@ -32,11 +118,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildHome() {
-    return ArticlesPage();
+    return ArticlesPage(
+      dragNotifier: _dragNotifier,
+      scrollController: _articleScrollController,
+    );
   }
 
   Widget _buildBookmarks() {
-    return ArticlesPage();
+    return BookmarksPage();
   }
 
   Widget _buildProfile() {
@@ -58,9 +147,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: _buildNavBar(),
-      body: _buildBody(),
-    );
+    return Scaffold(bottomNavigationBar: _buildNavBar(), body: _buildBody());
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watchmans_gazette/components/stroked_text.dart';
 import 'package:watchmans_gazette/news/sdg_constants.dart';
 import 'package:watchmans_gazette/news/search_filter.dart';
 import 'package:watchmans_gazette/theme/app_color.dart';
@@ -12,7 +13,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  static const double _inputFontSize = 16;
+  static const double _inputFontSize = 12;
   final TextEditingController _searchController = TextEditingController();
   final List<bool> _sdgChoices = .filled(17, false);
 
@@ -21,7 +22,10 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     if (widget.existingFilter != null) {
       setState(() {
-        _searchController.text = widget.existingFilter!.search ?? "";
+        _searchController.text = widget.existingFilter?.search ?? "";
+        if (widget.existingFilter == null) {
+          return;
+        }
         for (int i = 0; i < widget.existingFilter!.sdgFilters.length; i++) {
           _sdgChoices[i] = widget.existingFilter!.sdgFilters[i];
         }
@@ -31,18 +35,23 @@ class _SearchScreenState extends State<SearchScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: TextField(
-        maxLines: 1,
-        controller: _searchController,
-        onSubmitted: (input) => _submitSearch(input: input),
-        style: TextStyle(color: AppColors.background, fontSize: _inputFontSize),
-        cursorColor: AppColors.background,
-        decoration: InputDecoration(
-          hint: Text(
-            "Search",
-            style: TextStyle(
-              color: AppColors.backgroundDarker,
-              fontSize: _inputFontSize,
+      title: Container(
+        margin: .only(top: 15, bottom: 15),
+        child: TextField(
+          maxLines: 1,
+          controller: _searchController,
+          onSubmitted: (input) => _submitSearch(input: input),
+          style: TextStyle(color: Colors.black, fontSize: _inputFontSize),
+          cursorColor: AppColors.primary,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.searchBG),
+              borderRadius: .all(.circular(50)),
+            ),
+            filled: true,
+            hint: Text(
+              "Search",
+              style: TextStyle(color: Colors.black, fontSize: _inputFontSize),
             ),
           ),
         ),
@@ -51,6 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
         IconButton(
           onPressed: () => _submitSearch(input: _searchController.text),
           icon: Icon(Icons.search),
+          tooltip: "search",
         ),
       ],
     );
@@ -73,6 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
         setState(() => _sdgChoices[index] = !_sdgChoices[index]);
       },
       child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         child: Stack(
           children: [
             Positioned.fill(
@@ -83,7 +94,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     return LinearGradient(
                       begin: .centerLeft,
                       end: .centerRight,
-                      colors: [Colors.black, Colors.transparent],
+                      colors: [Colors.black, Colors.black, Colors.transparent],
+                      stops: [0, 0.01, 1],
                     ).createShader(rect);
                   },
                   blendMode: .dstIn,
@@ -94,21 +106,30 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-            Row(
-              crossAxisAlignment: .center,
-              mainAxisAlignment: .spaceBetween,
-              children: [
-                SizedBox(),
-                Text(SDG_TITLES[index]),
-                Checkbox(
-                  value: _sdgChoices[index],
-                  onChanged: (checked) {
-                    if (checked != null) {
-                      setState(() => _sdgChoices[index] = checked);
-                    }
-                  },
-                ),
-              ],
+            Padding(
+              padding: .only(top: 10, bottom: 10),
+              child: Row(
+                crossAxisAlignment: .center,
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  SizedBox(width: 80),
+                  Expanded(
+                    child: Text(
+                      SDG_TITLES[index],
+                      maxLines: 2,
+                      textAlign: .center,
+                    ),
+                  ),
+                  Checkbox(
+                    value: _sdgChoices[index],
+                    onChanged: (checked) {
+                      if (checked != null) {
+                        setState(() => _sdgChoices[index] = checked);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -120,11 +141,46 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: ListView.builder(
-        itemCount: _sdgChoices.length,
-        itemBuilder: (context, index) {
-          return _buildSDGFilterItem(index);
-        },
+      body: Column(
+        mainAxisSize: .max,
+        children: [
+          Container(
+            color: AppColors.backgroundDarker,
+            child: Row(
+              crossAxisAlignment: .center,
+              mainAxisAlignment: .end,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _sdgChoices.fillRange(0, 17, true);
+                    });
+                  },
+                  icon: Icon(Icons.select_all),
+                  tooltip: "select all",
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _sdgChoices.fillRange(0, 17, false);
+                      _searchController.clear();
+                    });
+                  },
+                  icon: Icon(Icons.filter_list_off),
+                  tooltip: "clear filters",
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _sdgChoices.length,
+              itemBuilder: (context, index) {
+                return _buildSDGFilterItem(index);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

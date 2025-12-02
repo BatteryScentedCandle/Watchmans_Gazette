@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:watchmans_gazette/screens/landing_page.dart';
@@ -21,51 +22,165 @@ class _UserProfilePage extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Account Settings")),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildHeader(context),
+
+          //Change Password
           SizedBox(
-            width: 100,
+            width: 250,
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
                 _changePasswordField(context);
               },
-              child: Text(
-                'Change Password',
-                style: TextStyle(color: Colors.black),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.password_rounded),
+                  SizedBox(width: 8),
+                  Text(
+                    'Change Password',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+
+          const SizedBox(height: 20),
+
+          //Sign Out
           SizedBox(
-            width: 100,
+            width: 250,
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => LandingPage()),
+                  (route) => false,
                 );
               },
-              child: Text('Sign Out', style: TextStyle(color: Colors.black)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.exit_to_app_rounded),
+                  SizedBox(width: 8),
+                  Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+
+          const SizedBox(height: 20),
+
+          //Delete Account
           SizedBox(
-            width: 100,
+            width: 250,
             height: 50,
             child: ElevatedButton(
               onPressed: () async {
-                await user!
-                    .delete(); //TODO: add confirmation before proceeding with deletion
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LandingPage()),
+                final TextEditingController editController =
+                    TextEditingController();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext ctx) {
+                    return AlertDialog(
+                      title: const Text('Please Confirm'),
+                      content: Column(
+                        mainAxisSize: .min,
+                        children: [
+                          const Text('Enter password to delete account'),
+                          TextField(
+                            obscureText: true,
+                            controller: editController,
+                            onSubmitted: (input) =>
+                                _deleteAccountConfirmation(input),
+                            decoration: InputDecoration(
+                              hintText: "Enter password...",
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        // The "Yes" button
+                        TextButton(
+                          onPressed: () async {
+                            _deleteAccountConfirmation(
+                              editController.text,
+                              onSuccess: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LandingPage(),
+                                  ),
+                                  (route) => false,
+                                );
+                                ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    SnackBar(content: Text("Account deleted")),
+                                  );
+                              },
+                              onFail: (message) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    SnackBar(content: Text(message)),
+                                  );
+                              },
+                            );
+                          },
+                          child: const Text('Yes'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Close the dialog
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('No'),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
-              child: Text(
-                'Delete Account',
-                style: TextStyle(color: Colors.black),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.remove_circle_outline_rounded),
+                  SizedBox(width: 8),
+                  Text(
+                    'Delete Accounts',
+                    style: TextStyle(
+                      fontFamily: 'Metropolis',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -84,25 +199,40 @@ Widget _buildHeader(BuildContext context) {
     alignment: Alignment.center,
     child: Column(
       children: [
-        Container(width: 300, height: 2, color: Colors.black),
-
-        SizedBox(height: 8),
-
         Text(
-          '${user?.email}',
+          'Current User:',
           style: TextStyle(
             fontFamily: 'Metropolis',
-            fontSize: 32,
-            fontWeight: FontWeight.w100,
-            letterSpacing: 8,
-            color: Colors.black,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1,
+            color: Colors.black54,
           ),
         ),
+
+        const SizedBox(height: 8),
+
+        FittedBox(
+          fit: .fitWidth,
+          child: Text(
+            '${user?.email}',
+            style: TextStyle(
+              fontFamily: 'Metropolis',
+              fontSize: 25,
+              fontWeight: FontWeight.w100,
+              letterSpacing: 8,
+              color: Colors.black,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 15),
       ],
     ),
   );
 }
 
+//Password Changer
 Future<void> _changePasswordField(context) async {
   String currentPassword = '';
   String newPassword = '';
@@ -111,39 +241,66 @@ Future<void> _changePasswordField(context) async {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Change Password'),
+        backgroundColor: Color(0xFFF8EDEA),
+        title: Text(
+          'Change Password',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 20,
+            fontWeight: FontWeight.w100,
+            letterSpacing: 2,
+            color: Colors.black,
+          ),
+        ),
+
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TextField(
               obscureText: true,
-              decoration: InputDecoration(hintText: 'Current Password'),
+              decoration: InputDecoration(
+                labelText: "Password",
+                labelStyle: TextStyle(fontWeight: FontWeight.normal),
+              ),
               onChanged: (value) {
                 currentPassword = value;
               },
             ),
+
+            const SizedBox(height: 8),
+
             TextField(
               obscureText: true,
-              decoration: InputDecoration(hintText: 'New Password'),
+              decoration: InputDecoration(
+                labelText: "New Password",
+                labelStyle: TextStyle(fontWeight: FontWeight.normal),
+              ),
               onChanged: (value) {
                 newPassword = value;
               },
             ),
           ],
         ),
+
         actions: <Widget>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await _changePassword(currentPassword, newPassword, context);
-              Navigator.of(context).pop();
-            },
-            child: Text('Change'),
+          Row(
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () async {
+                  await _changePassword(currentPassword, newPassword, context);
+                  Navigator.of(context).pop();
+                },
+                child: Text('Change'),
+              ),
+              Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel'),
+              ),
+            ],
           ),
         ],
       );
@@ -179,5 +336,39 @@ Future<void> _changePassword(
             content: Text('Password not changed due to ${error.toString()}'),
           ),
         );
+      });
+}
+
+Future<void> _deleteAccountConfirmation(
+  String password, {
+  Function()? onSuccess,
+  Function(String)? onFail,
+}) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user == null || user.email == null) {
+    if (onFail != null) {
+      onFail("account not initialized properly for deletion");
+    }
+    return;
+  }
+  AuthCredential cred = EmailAuthProvider.credential(
+    email: user.email!,
+    password: password,
+  );
+
+  user
+      .reauthenticateWithCredential(cred)
+      .then((value) {
+        FirebaseFirestore db = FirebaseFirestore.instance;
+        db.collection('users').doc(value.user!.uid).delete();
+        user.delete();
+        if (onSuccess != null) {
+          onSuccess();
+        }
+      })
+      .catchError((error) {
+        if (onFail != null) {
+          onFail("$error");
+        }
       });
 }

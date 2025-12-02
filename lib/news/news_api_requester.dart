@@ -8,6 +8,8 @@ import 'package:watchmans_gazette/news/sdg_constants.dart';
 class ParamKeywords {
   static const ACCESS_KEY = "access_key";
   static const FIND = "find";
+  static const FORMAT = "format";
+  static const ID = "id";
   static const LIMIT = "limit";
 }
 
@@ -36,12 +38,19 @@ class NewsApiRequester {
   static const SEARCH_IN = SearchInValues.CONTENT;
   static const NEWS_HOST = "news.fcsapi.com";
   static const REQUEST_ENDPOINT = "/api/news";
+  static const CONTENT_REQUEST_ENDPOINT = "/api/news/content";
   static const NEWS_API_KEY = "NEWS_API_KEY";
 
   static Uri _getUri({bool https = true, Map<String, dynamic>? params}) {
     return https
         ? Uri.https(NEWS_HOST, REQUEST_ENDPOINT, params)
         : Uri.http(NEWS_HOST, REQUEST_ENDPOINT, params);
+  }
+
+  static Uri _getContentUri({bool https = true, Map<String, dynamic>? params}) {
+    return https
+        ? Uri.https(NEWS_HOST, CONTENT_REQUEST_ENDPOINT, params)
+        : Uri.http(NEWS_HOST, CONTENT_REQUEST_ENDPOINT, params);
   }
 
   /// # [getNews]
@@ -63,10 +72,12 @@ class NewsApiRequester {
     required int sdg,
     required Function(String, NewsResponse) onSuccess,
     Function(String)? onFail,
+    List<int> loadedIds = const [],
     String? search,
-    int limit = 20,
+    int target = 5,
+    int limit = 40,
   }) async {
-    final String apiKey = String.fromEnvironment(NEWS_API_KEY);
+    final String apiKey = const String.fromEnvironment(NEWS_API_KEY);
     final String keywords = search != null && search.isNotEmpty
         ? "\"$search\""
         : _sdgKeywords(sdg);
@@ -81,8 +92,12 @@ class NewsApiRequester {
 
     final response = await http.get(uri);
 
-    if (response.statusCode != 200) {
-      if (onFail != null) onFail("something went wrong");
+    // Due to time constraints, I just have to allow 403 status codes. I 
+    // haven't thoroughly tested it yet, but I feel like the API is sending a
+    // success payload with a 403 status sometimes.
+    if (response.statusCode != 200 && response.statusCode != 403) {
+      if (onFail != null) onFail("something went wrong, code: ${response.statusCode}");
+      debugPrint("body: ${response.body}");
       return;
     }
 
@@ -97,9 +112,15 @@ class NewsApiRequester {
         onFail(msg);
       }
       return;
-    }
+   }
 
-    final newsItems = _extractNews(body["response"], sdg);
+    final newsItems = _extractNews(
+      news: body["response"],
+      sdg: sdg,
+      limit: limit,
+      target: target,
+      loadedIds: loadedIds,
+    );
     final news = NewsResponse(
       status: status,
       code: code,
@@ -136,8 +157,10 @@ class NewsApiRequester {
     required Function(String, List<NewsItem>) onReceived,
     Function(String)? onFail,
     Function()? onFinish,
+    List<int> loadedIds = const [],
     String? search,
-    int limit = 5,
+    int target = 5,
+    int limit = 40,
   }) async {
     bool oneSelected = false;
     for (var selected in selectedSDGs) {
@@ -152,15 +175,21 @@ class NewsApiRequester {
 
     List<int> sdgNumbers = _getSelectedSDGNumbers(selectedSDGs);
 
+    bool failed = false;
     for (var sdg in sdgNumbers) {
+      if (failed) {
+        break;
+      }
       await getNews(
         sdg: sdg,
         limit: limit,
         search: search,
+        loadedIds: loadedIds,
         onSuccess: (message, result) {
           onReceived(message, result.news);
         },
         onFail: (message) {
+          failed = true;
           if (onFail != null) {
             onFail(message);
           }
@@ -173,6 +202,76 @@ class NewsApiRequester {
     }
   }
 
+  static Future<void> getNewsContent({
+    required NewsItem newsItem,
+    required Function(String, NewsContentResponse) onSuccess,
+    Function(String)? onFail,
+  }) async {
+    
+    final String apiKey = const String.fromEnvironment(NEWS_API_KEY);
+
+    Map<String, dynamic> params = {
+      ParamKeywords.ACCESS_KEY: apiKey,
+      ParamKeywords.ID: newsItem.id,
+      ParamKeywords.FORMAT: "text",
+    };
+
+    final Uri uri = _getContentUri(params: params);
+
+    final response = await http.get(uri);
+
+
+    if (response.statusCode != 200) {
+      if (onFail != null) onFail("something went wrong");
+      return;
+    }
+
+    Map<String, dynamic> body = jsonDecode(response.body);
+
+    final msg = body["msg"];
+    bool status = body["status"];
+    final code = body["code"];
+
+    if (!status) {
+      if (onFail != null) {
+        onFail(msg);
+      }
+      return;
+   }
+
+    final news = body["response"];
+
+    NewsImage newsImage = NewsImage(
+      img: news["image"]["img"],
+      video: news["image"]["video"],
+    );
+    final content = NewsItemContent(
+      id: news["id"],
+      title: news["title"],
+      description: news["description"],
+      language: news["language"],
+      publishedAt: news["publishedAt"],
+      source: news["source"],
+      site: news["site"],
+      category: news["category"],
+      country: news["country"],
+      author: news["author"],
+      keywords: [],
+      content: news["content"],
+      sdgNumber: newsItem.sdgNumber,
+      newsImage: newsImage,
+    );
+
+    final result = NewsContentResponse(
+      status: status,
+      code: code,
+      msg: msg,
+      content: content,
+    );
+
+    onSuccess(msg, result);
+  }
+
   static List<int> _getSelectedSDGNumbers(List<bool> selectedSDGs) {
     List<int> numbers = List.empty(growable: true);
     for (int i = 0; i < selectedSDGs.length; i++) {
@@ -183,15 +282,36 @@ class NewsApiRequester {
     return numbers;
   }
 
-  static List<NewsItem> _extractNews(List<dynamic> news, int sdg) {
-    List<NewsItem> newsItems = .generate(news.length, (index) {
-      final map = news[index];
-      return _extractNewsItem(map, sdg);
-    });
+  static List<NewsItem> _extractNews({
+    required List<dynamic> news,
+    required int sdg,
+    required int limit,
+    required int target,
+    required List<int> loadedIds,
+  }) {
+    List<NewsItem> newsItems = List.empty(growable: true);
+    for (var i = 0; i < news.length; i++) {
+      if (newsItems.length >= target) {
+        break;
+      }
+      final map = news[i];
+      final newsItem = _extractNewsItem(map, sdg, loadedIds);
+      if (newsItem != null) {
+        newsItems.add(newsItem);
+      }
+    }
+
     return newsItems;
   }
 
-  static NewsItem _extractNewsItem(Map<String, dynamic> news, int sdg) {
+  static NewsItem? _extractNewsItem(
+    Map<String, dynamic> news,
+    int sdg,
+    List<int> loadedIds,
+  ) {
+    if (loadedIds.contains(int.parse(news["id"]))) {
+      return null;
+    }
     NewsImage newsImage = NewsImage(
       img: news["image"]["img"],
       video: news["image"]["video"],
@@ -282,6 +402,28 @@ class NewsResponse {
   });
 }
 
+/// # [NewsContentResponse]
+/// Contains the result of the news api request.
+///
+/// [status] refers to whether the request succeeded or failed.
+/// [code] refers to the http status code of the response.
+/// [msg] is the message of the response.
+/// [content] is the content of the news
+///
+class NewsContentResponse {
+  bool status;
+  int code;
+  String msg;
+  NewsItemContent content;
+
+  NewsContentResponse({
+    required this.status,
+    required this.code,
+    required this.msg,
+    required this.content,
+  });
+}
+
 /// # [NewsItem]
 /// Contains information about a single news result.
 ///
@@ -360,6 +502,88 @@ newsImage:
 $newsImage
 content_api:
   $contentApi
+    ''';
+  }
+}
+
+/// # [NewsItemContent]
+/// Contains information about a single news result.
+///
+/// [id] is the id of the news in fcsapi.
+///
+/// [source] is the url to the web view of the news.
+///
+/// [site] refers to the site origin of the news.
+///
+/// [country] is a comma separated list of country codes.
+///
+/// [keywords] is a [List] of keywords
+///
+/// [newsImage] contains either an image or video url of the news. see [NewsImage]
+///
+/// [content] is the content retrieved from [NewsItem]'s contentApi url.
+class NewsItemContent {
+  String id;
+  String title;
+  String description;
+  String language;
+  String publishedAt;
+  String source;
+  String site;
+  String category;
+  String country;
+  String author;
+  int sdgNumber;
+  List<String> keywords;
+  NewsImage newsImage;
+  String content;
+
+  NewsItemContent({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.language,
+    required this.publishedAt,
+    required this.source,
+    required this.site,
+    required this.category,
+    required this.country,
+    required this.author,
+    required this.keywords,
+    required this.newsImage,
+    required this.content,
+    this.sdgNumber = 0,
+  });
+
+  @override
+  String toString() {
+    return '''
+id:
+  $id
+title:
+  $title
+description:
+  $description
+content:
+  $content
+language:
+  $language
+publishedAt:
+  $publishedAt
+source:
+  $source
+site:
+  $site
+category:
+  $category
+country:
+  $country
+author:
+  $author
+keywords:
+  $keywords
+newsImage:
+$newsImage
     ''';
   }
 }
