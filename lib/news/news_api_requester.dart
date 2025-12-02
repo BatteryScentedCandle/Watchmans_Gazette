@@ -184,6 +184,7 @@ class NewsApiRequester {
         sdg: sdg,
         limit: limit,
         search: search,
+        loadedIds: loadedIds,
         onSuccess: (message, result) {
           onReceived(message, result.news);
         },
@@ -290,15 +291,14 @@ class NewsApiRequester {
   }) {
     List<NewsItem> newsItems = List.empty(growable: true);
     for (var i = 0; i < news.length; i++) {
-      if (i >= target - 1) {
+      if (newsItems.length >= target) {
         break;
       }
       final map = news[i];
       final newsItem = _extractNewsItem(map, sdg, loadedIds);
-      if (newsItem == null) {
-        continue;
+      if (newsItem != null) {
+        newsItems.add(newsItem);
       }
-      newsItems.add(newsItem);
     }
 
     return newsItems;

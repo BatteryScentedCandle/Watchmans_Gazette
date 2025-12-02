@@ -231,7 +231,7 @@ class _ArticlesPageState extends State<ArticlesPage>
         _newsStream.stream.listen(_addNews);
       }
     });
-    var key;
+    int key = 0;
     setState(() {
       key = more ? _streamId : ++_streamId;
     });
@@ -243,7 +243,6 @@ class _ArticlesPageState extends State<ArticlesPage>
           : _searchFilter!.sdgFilters,
       onReceived: (message, result) {
         if (key != _streamId) {
-          debugPrint("keys did not match $key != $_streamId");
           return;
         }
         setState(() {
