@@ -171,7 +171,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                   Icon(Icons.remove_circle_outline_rounded),
                   SizedBox(width: 8),
                   Text(
-                    'Delete Accounts',
+                    'Delete Account',
                     style: TextStyle(
                       fontFamily: 'Metropolis',
                       fontSize: 14,
