@@ -54,18 +54,18 @@ class LandingPage extends StatelessWidget {
 }
 
 Widget _buildHeader(BuildContext context) {
-  return Flexible(
-    child: Container(
-      padding: EdgeInsets.all(16.0),
-
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          Container(width: 300, height: 2, color: Colors.black),
-
-          SizedBox(height: 8),
-
-          Text(
+  return Container(
+    padding: EdgeInsets.all(16.0),
+  
+    alignment: Alignment.center,
+    child: Column(
+      children: [
+        Container(width: 300, height: 2, color: Colors.black),
+  
+        SizedBox(height: 8),
+  
+        FittedBox(
+          child: Text(
             'THE',
             style: TextStyle(
               fontFamily: 'Metropolis',
@@ -75,8 +75,10 @@ Widget _buildHeader(BuildContext context) {
               color: Colors.black,
             ),
           ),
-
-          Text(
+        ),
+  
+        FittedBox(
+          child: Text(
             'WATCHMAN\'S',
             style: TextStyle(
               fontFamily: 'Metropolis',
@@ -87,8 +89,10 @@ Widget _buildHeader(BuildContext context) {
               height: 1.1,
             ),
           ),
-
-          Text(
+        ),
+  
+        FittedBox(
+          child: Text(
             'GAZETTE',
             style: TextStyle(
               fontFamily: 'Metropolis',
@@ -98,26 +102,26 @@ Widget _buildHeader(BuildContext context) {
               color: Colors.black,
             ),
           ),
-
-          SizedBox(height: 8),
-
-          Container(width: 300, height: 2, color: Colors.black),
-
-          SizedBox(height: 10),
-
-          Text(
-            'Delivering the latest information on the Sustainable Development Goals ',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Metropolis',
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 1,
-              color: Colors.black54,
-            ),
+        ),
+  
+        SizedBox(height: 8),
+  
+        Container(width: 300, height: 2, color: Colors.black),
+  
+        SizedBox(height: 10),
+  
+        Text(
+          'Delivering the latest information on the Sustainable Development Goals ',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Metropolis',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1,
+            color: Colors.black54,
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }
